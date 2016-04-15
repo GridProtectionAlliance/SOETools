@@ -52,7 +52,7 @@ namespace SOETools.Controllers
         public SecurityController()
         {
             // Establish data context for the view
-            m_dataContext = new DataContext(exceptionHandler: MvcApplication.LogException);
+            m_dataContext = new DataContext("securityProvider", exceptionHandler: MvcApplication.LogException);
             ViewData.Add("DataContext", m_dataContext);
 
             // Set default model for pages used by layout
