@@ -93,18 +93,6 @@ namespace SOETools.Controllers
             return View();
         }
 
-        public ActionResult Patches()
-        {
-            m_appModel.ConfigureView<Patch>(Url.RequestContext, "Patches", ViewBag);
-            return View();
-        }
-
-        public ActionResult DiscoverPatches()
-        {
-            m_appModel.ConfigureView<LatestVendorDiscoveryResult>(Url.RequestContext, "Check", ViewBag);
-            return View();
-        }
-
         public ActionResult Help()
         {
             m_appModel.ConfigureView(Url.RequestContext, "Help", ViewBag);
@@ -130,44 +118,6 @@ namespace SOETools.Controllers
         public ActionResult PageTemplate1()
         {
             m_appModel.ConfigureView(Url.RequestContext, "PageTemplate1", ViewBag);
-            return View();
-        }
-
-        public ActionResult Install()
-        {
-            m_appModel.ConfigureView(Url.RequestContext, "Install", ViewBag);
-            return View();
-        }
-
-        public ActionResult Assess()
-        {
-            m_appModel.ConfigureView(Url.RequestContext, "Assess", ViewBag);
-            return View();
-        }
-
-        public ActionResult History()
-        {
-            m_appModel.ConfigureView(Url.RequestContext, "History", ViewBag);
-            return View();
-        }
-
-        public ActionResult Plan()
-        {
-            m_appModel.ConfigureView(Url.RequestContext, "Plan", ViewBag);
-            return View();
-        }
-
-
-        public ActionResult Notification()
-        {
-            m_appModel.ConfigureView(Url.RequestContext, "Notification", ViewBag);
-            return View();
-        }
-
-
-        public ActionResult Done()
-        {
-            m_appModel.ConfigureView(Url.RequestContext, "Done", ViewBag);
             return View();
         }
 

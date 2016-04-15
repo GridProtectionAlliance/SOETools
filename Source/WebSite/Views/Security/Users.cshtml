@@ -62,6 +62,7 @@
 
     ViewBag.BodyRows = BodyRows().ToString();
     ViewBag.AddNewEditDialog = AddNewEditDialog(dataContext).ToString();
+    ViewBag.AddNewEditTitle = "User";
 }
 @helper BodyRows()
 {
@@ -86,7 +87,7 @@
 @helper AddNewEditDialog(DataContext dataContext)
 {
     <div class="col-md-12">
-        @Html.Raw(dataContext.AddInputField<UserAccount>("Name", fieldLabel: $"Name{AccountValidationFeedback().ToString().Trim()}", customDataBinding: "attr: {'acct-valid': validateAccount($data)}", initialFocus: true))
+        @Html.Raw(dataContext.AddInputField<UserAccount>("Name", fieldLabel: $"Name{AccountValidationFeedback().ToString().Trim()}", customDataBinding: "attr: {'acct-valid': validateAccount($data), 'autocomplete': 'off'}", initialFocus: true))
         <div class="panel panel-default" data-bind="css: {'panel-readonly': $root.recordMode()===RecordMode.View, 'panel-primary': UseDBAuthentication}">
             <div class="panel-heading">
                 @* Adding actual UseADAuthentication field check-box, but hidden, to pick-up any model based field initializers *@
@@ -98,10 +99,10 @@
                     <div class="col-md-8">
                         <div class="row">
                             <div class="col-md-4">
-                                <label class="radio-inline"><input type="radio" name="radioUseDBAuthentication" data-bind="checkedValue: false, checked: UseDBAuthentication, attr: {'disabled': ($root.recordMode()===RecordMode.View ? true : undefined)}">&nbsp;Active&nbsp;Directory&nbsp;Group</label>
+                                <label class="radio-inline"><input type="radio" name="radioUseDBAuthentication" data-bind="checkedValue: false, checked: UseDBAuthentication, attr: {'disabled': ($root.recordMode()===RecordMode.View ? true : undefined)}">&nbsp;Active&nbsp;Directory&nbsp;User</label>
                             </div>
                             <div class="col-md-8">
-                                <label class="radio-inline"><input type="radio" name="radioUseDBAuthentication" data-bind="checkedValue: true, checked: UseDBAuthentication, attr: {'disabled': ($root.recordMode()===RecordMode.View ? true : undefined)}">&nbsp;Database&nbsp;Group</label>
+                                <label class="radio-inline"><input type="radio" name="radioUseDBAuthentication" data-bind="checkedValue: true, checked: UseDBAuthentication, attr: {'disabled': ($root.recordMode()===RecordMode.View ? true : undefined)}">&nbsp;Database&nbsp;User</label>
                             </div>
                         </div>
                     </div>
@@ -294,7 +295,7 @@
             newRecord.AccountName = ko.observable("");
         });
 
-        $(viewModel).on("derivingObservableRecord", function(event, observableRecord) {
+        $(viewModel).on("beforeEdit", function(event, observableRecord) {
             // Create a virtual UseDBAuthentication field that is negated state of actual UseADAuthentication field
             observableRecord.UseDBAuthentication = ko.observable(!observableRecord.UseADAuthentication());
 
@@ -307,7 +308,7 @@
                 observableRecord.Password(null);
         });
 
-        $(viewModel).on("derivingJSRecord", function(event, observableRecord, promises) {
+        $(viewModel).on("beforeSave", function(event, observableRecord, promises) {
             // Set state of actual field to be negated state of virtual field
             observableRecord.UseADAuthentication(!observableRecord.UseDBAuthentication());
 

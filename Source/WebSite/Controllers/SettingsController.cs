@@ -93,24 +93,6 @@ namespace SOETools.Controllers
             return View();
         }
 
-        public ActionResult Vendors()
-        {
-            m_appModel.ConfigureView<Vendor>(Url.RequestContext, "Settings.Vendors", ViewBag);
-            return View();
-        }
-
-        public ActionResult Platforms()
-        {
-            m_appModel.ConfigureView<Platform>(Url.RequestContext, "Settings.Platforms", ViewBag);
-            return View();
-        }
-
-        public ActionResult BusinessUnits()
-        {
-            m_appModel.ConfigureView<BusinessUnit>(Url.RequestContext, "Settings.BusinessUnits", ViewBag);
-            return View();
-        }
-
         #endregion
     }
 }
