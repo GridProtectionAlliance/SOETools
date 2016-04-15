@@ -24,7 +24,7 @@
 using System.Web.Mvc;
 using GSF.Web.Model;
 using GSF.Web.Security;
-using SOETools.Models;
+using SOETools.Model;
 
 namespace SOETools.Controllers
 {
@@ -74,7 +74,10 @@ namespace SOETools.Controllers
                 try
                 {
                     if (disposing)
+                    {
                         m_dataContext?.Dispose();
+                        m_appModel?.Dispose();
+                    }
                 }
                 finally
                 {

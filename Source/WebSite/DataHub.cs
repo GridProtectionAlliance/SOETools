@@ -23,21 +23,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using GSF;
-using GSF.Collections;
 using GSF.Data.Model;
 using GSF.Identity;
-using GSF.Reflection;
-using GSF.Security;
-using GSF.Security.Model;
 using GSF.Web.Model;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
-using SOETools.Models;
+using SOETools.Model;
 
 namespace SOETools
 {
@@ -129,6 +124,14 @@ namespace SOETools
         private static volatile int s_connectCount;
         private static readonly ThreadLocal<string> s_connectionID = new ThreadLocal<string>();
         private static readonly RecordOperationsCache s_recordOperationsCache;
+
+        // Static Methods
+
+        /// <summary>
+        /// Gets statically cached instance of <see cref="RecordOperationsCache"/> for <see cref="DataHub"/> instances.
+        /// </summary>
+        /// <returns>Statically cached instance of <see cref="RecordOperationsCache"/> for <see cref="DataHub"/> instances.</returns>
+        public static RecordOperationsCache GetRecordOperationsCache() => s_recordOperationsCache;
 
         // Static Constructor
         static DataHub()

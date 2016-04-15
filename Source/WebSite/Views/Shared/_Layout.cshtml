@@ -24,11 +24,11 @@
 @using GSF
 @using GSF.Data.Model
 @using GSF.Web.Model
-@using SOETools.Models
-@using Page = SOETools.Models.Page
-@model AppModel
+@using SOETools.Model
+@using Page = SOETools.Model.Page
+@model SOETools.Model.AppModel
 @{
-    DataContext dataContext = Model.DataContext;
+    DataContext dataContext = Model.SecurityDataContext;
     Dictionary<string, string> layoutSettings = Model.Global.LayoutSettings;
     string copyrightText, copyrightUrl, setting;
     Page page = ViewBag.Page;

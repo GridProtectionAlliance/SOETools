@@ -21,6 +21,7 @@
 //
 //******************************************************************************************************
 
+using GSF.Web.Model;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using Owin;
@@ -32,7 +33,7 @@ namespace SOETools
         public void Configuration(IAppBuilder app)
         {
             // Load security hub in application domain before establishing SignalR hub configuration
-            using (new SecurityHub()) {}
+            GlobalHost.DependencyResolver.Register(typeof(SecurityHub), () => new SecurityHub(new DataContext("securityProvider", MvcApplication.LogException)));
 
             HubConfiguration hubConfig = new HubConfiguration();
 #if DEBUG

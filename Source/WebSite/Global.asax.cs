@@ -36,10 +36,9 @@ using GSF.Data;
 using GSF.Identity;
 using GSF.Security;
 using GSF.Web.Model;
-using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
-using SOETools.Models;
+using SOETools.Model;
 
 namespace SOETools
 {
@@ -78,7 +77,7 @@ namespace SOETools
             systemSettings.Add("CompanyAcronym", "GPA", "The acronym representing the company who owns this instance of the openMIC.");
             systemSettings.Add("DateFormat", "MM/dd/yyyy", "The default date format to use when rendering timestamps.");
             systemSettings.Add("TimeFormat", "HH:mm.ss.fff", "The default time format to use when rendering timestamps.");
-            systemSettings.Add("DefaultSecurityRoles", "Administrator, Owner, Viewer, PIC, SME, BUC", "The default security roles that should exist for the application.");
+            systemSettings.Add("DefaultSecurityRoles", "Administrator, Owner, Viewer", "The default security roles that should exist for the application.");
             securityProvider.Add("PasswordRequirementsRegex", AdoSecurityProvider.DefaultPasswordRequirementsRegex, "Regular expression used to validate new passwords for database users.");
             securityProvider.Add("PasswordRequirementsError", AdoSecurityProvider.DefaultPasswordRequirementsError, "Error message to be displayed when new database user password fails regular expression test.");
 
@@ -92,7 +91,7 @@ namespace SOETools
             global.PasswordRequirementsError = securityProvider["PasswordRequirementsError"].Value;
 
             // Load database driven model settings
-            using (DataContext dataContext = new DataContext(exceptionHandler: LogException))
+            using (DataContext dataContext = new DataContext("securityProvider", LogException))
             {
                 // Validate default security roles exist
                 ValidateSecurityRoles(dataContext.Connection, systemSettings["DefaultSecurityRoles"].Value);
