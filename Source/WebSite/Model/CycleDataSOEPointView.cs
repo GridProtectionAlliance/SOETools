@@ -27,6 +27,7 @@ namespace SOETools.Model
         public string UpState { get; set; }
         public string DownState { get; set; }
         public string Phasing { get; set; }
+        public int IncidentID { get; set; }
 
     }
 }

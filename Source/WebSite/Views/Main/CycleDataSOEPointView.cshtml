@@ -42,18 +42,28 @@
         <div>
             <table class="table table-responsive">
                 <thead>
-                    <tr>
-                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Meter&nbsp;Names&nbsp;&nbsp;</u>&nbsp;<div class="input-group"><input id="filterMn" type="text" class="form-control" placeholder="Enter meter name here..."></div></td>
-                        <td align="center" width="20%">&nbsp;<u>&nbsp;&nbsp;Time&nbsp;Stamp&nbsp;&nbsp;</u>&nbsp;<div class="input-group"><input id="filterd" type="text" class="form-control" placeholder="Enter date here..."></div></td>
-                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Phasing&nbsp;&nbsp;</u>&nbsp;</td>
-                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;UpStream&nbsp;&nbsp;</u>&nbsp;</td>
-                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;State&nbsp;&nbsp;</u>&nbsp;</td>
-                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;DownStream&nbsp;&nbsp;</u>&nbsp;</td>
-                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Sigma(i2t)&nbsp;&nbsp;</u>&nbsp;</td>
-                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Imax&nbsp;&nbsp;</u>&nbsp;</td>
-                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Vmin&nbsp;&nbsp;</u>&nbsp;</td>
+                <tr>
+                    <td align="center" width="10%">
+                        &nbsp;<u>&nbsp;&nbsp;Incident&nbsp;ID&nbsp;&nbsp;</u>&nbsp;
+                        <div class="input-group">
+                            <input id="filterIn" type="text" class="form-control" placeholder="Enter incident id here...">
+                        </div>
+                    </td>
+                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Meter&nbsp;Names&nbsp;&nbsp;</u>&nbsp;
+                        <div class="input-group"><input id="filterMn" type="text" class="form-control" placeholder="Enter meter name here...">
+                        </div></td>
+                    <td align="center" width="20%">&nbsp;<u>&nbsp;&nbsp;Time&nbsp;Stamp&nbsp;&nbsp;</u>&nbsp;
+                        <div class="input-group"><input id="filterd" type="text" class="form-control" placeholder="Enter date here...">
+                        </div></td>
+                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Phasing&nbsp;&nbsp;</u>&nbsp;</td>
+                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;UpStream&nbsp;&nbsp;</u>&nbsp;</td>
+                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;State&nbsp;&nbsp;</u>&nbsp;</td>
+                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;DownStream&nbsp;&nbsp;</u>&nbsp;</td>
+                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Sigma(i2t)&nbsp;&nbsp;</u>&nbsp;</td>
+                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Imax&nbsp;&nbsp;</u>&nbsp;</td>
+                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Vmin&nbsp;&nbsp;</u>&nbsp;</td>
 
-                    </tr>
+                </tr>
                 </thead>
             </table>
         </div>
@@ -63,6 +73,7 @@
     <table class="table table-responsive" >
         <tbody class="searchable" data-bind="foreach: events">
         <tr>
+            <td align="center" width="10%" data-bind="text: IncidentID"></td>
             <td align="center" width="10%" data-bind="text: Name"></td>
             <td align="center" width="20%" data-bind="text: dateFixer(Timestamp).formatDate(DateTimeFormat)"></td>
             <td width="10%" align="center" data-bind="text: Phasing"></td>
@@ -108,6 +119,9 @@
                 getValues();
             })
 
+            $('#filterIn').keyup(function () {
+                getValues();
+            })
         }(jQuery));
 
     });
@@ -115,11 +129,11 @@
     function getValues() {
         var rexMn = new RegExp($('#filterMn').val(), 'i');
         var rexd = new RegExp($('#filterd').val(), 'i');
-
+        var rexIn = new RegExp($('#filterIn').val(), 'i');
         $('.searchable tr').hide();
         $('.searchable tr').filter(function () {
             //console.log($(this).children()[0].innerHTML);
-            return rexMn.test($(this).children()[0].innerHTML) && rexd.test($(this).children()[1].innerHTML);
+            return rexMn.test($(this).children()[1].innerHTML) && rexd.test($(this).children()[2].innerHTML) && rexIn.test($(this).children()[0].innerHTML);
         }).show();
     }
     function HomePageViewModel() {
