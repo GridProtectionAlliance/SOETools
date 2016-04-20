@@ -325,8 +325,8 @@
     <Content Include="Images\PointCode\source\1150.png" />
     <Content Include="Images\PointCode\source\1160.png" />
     <Content Include="Images\PointCode\source\1170.png" />
-    <Content Include="Images\PointCode\source\2001.png" />
-    <Content Include="Images\PointCode\source\8001.png" />
+    <Content Include="Images\PointCode\source\2000.png" />
+    <Content Include="Images\PointCode\source\8000.png" />
     <Content Include="Images\PointCode\source\9000.png" />
     <Content Include="Images\SOETools.png" />
     <Content Include="Images\SOETools2.png" />
