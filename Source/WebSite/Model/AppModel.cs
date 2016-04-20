@@ -46,6 +46,7 @@ namespace SOETools.Model
 
         // Fields
         private DataContext m_securityDataContext;
+        private DataContext m_dbDataContext;
         private bool m_disposed;
 
         #endregion
@@ -97,6 +98,17 @@ namespace SOETools.Model
             get
             {
                 return m_securityDataContext ?? (m_securityDataContext = new DataContext("securityProvider", MvcApplication.LogException));
+            }
+        }
+
+        /// <summary>
+        /// Gets db data context for model.
+        /// </summary>
+        public DataContext DbDataContext
+        {
+            get
+            {
+                return m_dbDataContext ?? (m_dbDataContext = new DataContext("thirdDb", MvcApplication.LogException));
             }
         }
 

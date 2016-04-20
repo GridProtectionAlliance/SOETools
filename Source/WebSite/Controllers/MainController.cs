@@ -38,7 +38,9 @@ namespace SOETools.Controllers
 
         // Fields
         private readonly DataContext m_dataContext;
+        private readonly DataContext m_dbContext;
         private readonly AppModel m_appModel;
+        private readonly AppModel m_dbModel;
         private bool m_disposed;
 
         #endregion
@@ -52,10 +54,14 @@ namespace SOETools.Controllers
         {
             // Establish data context for the view
             m_dataContext = new DataContext(exceptionHandler: MvcApplication.LogException);
+            m_dbContext = new DataContext("thirdDb", MvcApplication.LogException);
             ViewData.Add("DataContext", m_dataContext);
+            ViewData.Add("DbContext", m_dbContext);
 
             // Set default model for pages used by layout
             m_appModel = new AppModel(m_dataContext);
+            m_dbModel = new AppModel(m_dbContext);
+            ViewData.Add("DbModel", m_dbModel);
             ViewData.Model = m_appModel;
         }
 
@@ -118,6 +124,13 @@ namespace SOETools.Controllers
         public ActionResult PageTemplate1()
         {
             m_appModel.ConfigureView(Url.RequestContext, "PageTemplate1", ViewBag);
+            return View();
+        }
+
+        public ActionResult CycleDataSOEPointView()
+        {
+            m_dbModel.ConfigureView<Model.CycleDataSOEPointView>(Url.RequestContext, "CycleDataSOEPointView", ViewBag);
+            ViewBag.UserSetting = "~/Images/UpDownState/Circle Set/48/";
             return View();
         }
 

@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System.Web.Mvc;
+using GSF.Security.Model;
 using GSF.Web.Model;
 using GSF.Web.Security;
 using SOETools.Model;
@@ -51,7 +52,7 @@ namespace SOETools.Controllers
         public SystemController()
         {
             // Establish data context for the view
-            m_dataContext = new DataContext(exceptionHandler: MvcApplication.LogException);
+            m_dataContext = new DataContext("securityProvider", MvcApplication.LogException);
             ViewData.Add("DataContext", m_dataContext);
 
             // Set default model for pages used by layout
@@ -95,19 +96,19 @@ namespace SOETools.Controllers
 
         public ActionResult Pages()
         {
-            m_appModel.ConfigureView<Page>(Url.RequestContext, "System.Pages", ViewBag);
+            m_appModel.ConfigureView(Url.RequestContext, "System.Pages", ViewBag);
             return View();
         }
 
         public ActionResult Menus()
         {
-            m_appModel.ConfigureView<Menu>(Url.RequestContext, "System.Menus", ViewBag);
+            m_appModel.ConfigureView(Url.RequestContext, "System.Menus", ViewBag);
             return View();
         }
 
         public ActionResult MenuItems()
         {
-            m_appModel.ConfigureView<MenuItem>(Url.RequestContext, "System.MenuItems", ViewBag);
+            m_appModel.ConfigureView(Url.RequestContext, "System.MenuItems", ViewBag);
             return View();
         }
 

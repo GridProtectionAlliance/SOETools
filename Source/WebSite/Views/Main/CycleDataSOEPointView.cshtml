@@ -1,0 +1,175 @@
+﻿
+@using System.Collections.Specialized
+@using GSF
+@using GSF.Data.Model
+@using GSF.Web.Model
+@using SOETools.Model
+@model SOETools.Model.AppModel
+@{
+    DataContext dataContext = Model.DbDataContext;
+    ViewBag.SOEs = dataContext.Table<CycleDataSOEPointView>().QueryRecords("Timestamp");
+    string statusImagePath = Model.GetPageSetting(ViewBag, "statusImagePath", ViewBag.UserSetting);
+    statusImagePath = Url.Content(statusImagePath).EnsureEnd('/');
+    string pointCodeImagePath = Model.GetPageSetting(ViewBag, "pointCodeImagePath", "~/Images/PointCode/source/");
+    pointCodeImagePath = Url.Content(pointCodeImagePath).EnsureEnd('/');
+
+}
+
+
+<script src="~/Scripts/jquery-2.2.1.js"></script>
+<script src="~/Scripts/jquery-ui.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/ie10-viewport-bug-workaround.js"></script>
+<script src="~/Scripts/respond.js"></script>
+<script src="~/Scripts/bootstrap-datepicker.min.js"></script>
+<script src="~/Scripts/bootstrap-toolkit.min.js"></script>
+<script src="~/Scripts/jquery.signalR-2.2.0.min.js"></script>
+<script src="~/Scripts/gsf.web.client.js"></script>
+<script src="~/signalr/hubs"></script>
+<script src="~/Scripts/Site.js"></script>
+<script src="~/Scripts/knockout-3.4.0.debug.js"></script>
+<script src="~/Scripts/knockout.mapping-latest.debug.js"></script>
+<script src="~/Scripts/knockout.validation.min.js"></script>
+<script src="~/Scripts/ko-reactor.min.js"></script>
+<script src="~/Scripts/ko.observableDictionary.js"></script>
+<script src="~/Scripts/js.cookie.js"></script>
+
+<div id="sticky-anchor"></div>
+
+<div style="width: 100%">
+    <div id="sticky" style="position: static">
+        
+        <div>
+            <table class="table table-responsive">
+                <thead>
+                    <tr>
+                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Meter&nbsp;Names&nbsp;&nbsp;</u>&nbsp;<div class="input-group"><input id="filterMn" type="text" class="form-control" placeholder="Enter meter name here..."></div></td>
+                        <td align="center" width="20%">&nbsp;<u>&nbsp;&nbsp;Time&nbsp;Stamp&nbsp;&nbsp;</u>&nbsp;<div class="input-group"><input id="filterd" type="text" class="form-control" placeholder="Enter date here..."></div></td>
+                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Phasing&nbsp;&nbsp;</u>&nbsp;</td>
+                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;UpStream&nbsp;&nbsp;</u>&nbsp;</td>
+                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;State&nbsp;&nbsp;</u>&nbsp;</td>
+                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;DownStream&nbsp;&nbsp;</u>&nbsp;</td>
+                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Sigma(i2t)&nbsp;&nbsp;</u>&nbsp;</td>
+                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Imax&nbsp;&nbsp;</u>&nbsp;</td>
+                        <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Vmin&nbsp;&nbsp;</u>&nbsp;</td>
+
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<div>
+    <table class="table table-responsive" >
+        <tbody class="searchable" data-bind="foreach: events">
+        <tr>
+            <td align="center" width="10%" data-bind="text: Name"></td>
+            <td align="center" width="20%" data-bind="text: dateFixer(Timestamp).formatDate(DateTimeFormat)"></td>
+            <td width="10%" align="center" data-bind="text: Phasing"></td>
+            <td width="10%" class="text-center valign-middle"><img src="~/Images/UpDownState/Circle Set/48/000.png" data-bind="attr: {'update-attr': getStatusImage($($element), UpState)}"></td>
+            <td width="10%" class="text-center valign-middle"><img src="~/Images/PointCode/source/1000.png" style="height: 50px; width: 50px" data-bind="attr: {'update-attr': getPointCodeImage($($element), PointCode)}"></td>
+            <td width="10%" class="text-center valign-middle"><img src="~/Images/UpDownState/Circle Set/48/000.png" data-bind="attr: {'update-attr': getStatusImage($($element), DownState)}"></td>
+            <td width="10%" align="center" data-bind="text: getSumISquaredT($data)"></td>
+            <td width="10%" align="center" data-bind="text: getImax($data)"></td>
+            <td width="10%" align="center" data-bind="text: getVmin($data)"></td>
+        </tr>
+        </tbody>
+    </table>
+  
+</div>
+<style>
+#sticky {
+    background: #FFF;
+    width: 100%;
+}
+
+</style>
+<script>
+
+    $(document).ready(function () {
+        $(window).scroll(function(e) {
+            var $el = $('#sticky');
+            var isPositionFixed = ($el.css('position') == 'fixed');
+            if ($(this).scrollTop() > 20 && !isPositionFixed) {
+                $('#sticky').css({ 'position': 'fixed', 'top': '0px' , 'width': '85%'});
+            }
+            if ($(this).scrollTop() < 20 && isPositionFixed) {
+                $('#sticky').css({ 'position': 'static', 'top': '0px', 'width': '100%' });
+            }
+        });
+
+        (function ($) {
+
+            $('#filterMn').keyup(function () {
+                getValues();
+            })
+
+            $('#filterd').keyup(function () {
+                getValues();
+            })
+
+        }(jQuery));
+
+    });
+
+    function getValues() {
+        var rexMn = new RegExp($('#filterMn').val(), 'i');
+        var rexd = new RegExp($('#filterd').val(), 'i');
+
+        $('.searchable tr').hide();
+        $('.searchable tr').filter(function () {
+            //console.log($(this).children()[0].innerHTML);
+            return rexMn.test($(this).children()[0].innerHTML) && rexd.test($(this).children()[1].innerHTML);
+        }).show();
+    }
+    function HomePageViewModel() {
+        var self = this;
+        self.events = ko.observableArray(@Html.Raw(Json.Encode(ViewBag.SOEs)));
+    }
+
+    ko.applyBindings(new HomePageViewModel());
+
+    function dateFixer(date) {
+        var str = date.slice(6, date.length - 2);
+        var newDate = new Date(parseInt(str));
+        return newDate;
+    }
+
+    function getStatusImage(element, data) {
+        element.attr("src", "@statusImagePath" + data + ".png");
+        element.attr("title", data);
+    }
+
+    function getPointCodeImage(element, data) {
+        element.attr("src", "@pointCodeImagePath" + data + ".png");
+        element.attr("title", data);
+        element.width = "50";
+        element.height = "50";
+    }
+
+    function getSumISquaredT(record) {
+        var sum = 0;
+        var time = 1 / 60;
+        sum += record.I1RMS ^ 2 * time;
+        sum += record.I2RMS ^ 2 * time;
+        sum += record.I3RMS ^ 2 * time;
+        return sum;
+    }
+
+    function getImax(record) {
+        var max = record.I1RMS;
+        if (max < record.I2RMS) max = record.I2RMS;
+        if (max < record.I3RMS) max = record.I3RMS;
+        return max;
+    }
+
+    function getVmin(record) {
+        var min = record.VX1RMS;
+        if (min > record.VX2RMS) min = record.VX2RMS;
+        if (min > record.VX3RMS) min = record.VX3RMS;
+        if (min > record.VY1RMS) min = record.VY1RMS;
+        if (min > record.VY2RMS) min = record.VY2RMS;
+        if (min > record.VY3RMS) min = record.VY3RMS;
+        return min;
+    }
+</script>

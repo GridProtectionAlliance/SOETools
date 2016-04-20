@@ -43,6 +43,8 @@ namespace SOETools
 
         // Fields
         private readonly DataContext m_dataContext;
+        private readonly DataContext m_coreContext;
+        private readonly DataContext m_dbContext;
         private bool m_disposed;
 
         #endregion
@@ -52,6 +54,8 @@ namespace SOETools
         public DataHub()
         {
             m_dataContext = new DataContext(exceptionHandler: MvcApplication.LogException);
+            m_coreContext = new DataContext("securityProvider", MvcApplication.LogException);
+            m_dbContext = new DataContext("thirdDb", exceptionHandler: MvcApplication.LogException);
         }
 
         #endregion
@@ -144,27 +148,49 @@ namespace SOETools
 
         // Client-side script functionality
 
+        #region [ CycleDataSOEPointView Table Operations ]
+
+
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.QueryRecordCount)]
+        public int QueryCycleDataSOEPointViewCount()
+        {
+            return m_dbContext.Table<CycleDataSOEPointView>().QueryRecordCount();
+        }
+
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.QueryRecords)]
+        public IEnumerable<CycleDataSOEPointView> QueryCycleDataSOEPointViewItems(string sortField, bool ascending, int page, int pageSize)
+        {
+            return m_dbContext.Table<CycleDataSOEPointView>().QueryRecords(sortField, ascending, page, pageSize);
+        }
+
+
+      
+
+        #endregion
+
         #region [ Page Table Operations ]
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Page), RecordOperation.QueryRecordCount)]
         public int QueryPageCount()
         {
-            return m_dataContext.Table<Page>().QueryRecordCount();
+            return m_coreContext.Table<Page>().QueryRecordCount();
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Page), RecordOperation.QueryRecords)]
         public IEnumerable<Page> QueryPages(string sortField, bool ascending, int page, int pageSize)
         {
-            return m_dataContext.Table<Page>().QueryRecords(sortField, ascending, page, pageSize);
+            return m_coreContext.Table<Page>().QueryRecords(sortField, ascending, page, pageSize);
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Page), RecordOperation.DeleteRecord)]
         public void DeletePage(int id)
         {
-            m_dataContext.Table<Page>().DeleteRecord(id);
+            m_coreContext.Table<Page>().DeleteRecord(id);
         }
 
         [AuthorizeHubRole("Administrator")]
@@ -179,14 +205,14 @@ namespace SOETools
         public void AddNewPage(Page record)
         {
             record.CreatedOn = DateTime.UtcNow;
-            m_dataContext.Table<Page>().AddNewRecord(record);
+            m_coreContext.Table<Page>().AddNewRecord(record);
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Page), RecordOperation.UpdateRecord)]
         public void UpdatePage(Page record)
         {
-            m_dataContext.Table<Page>().UpdateRecord(record);
+            m_coreContext.Table<Page>().UpdateRecord(record);
         }
 
         #endregion
@@ -197,21 +223,21 @@ namespace SOETools
         [RecordOperation(typeof(Menu), RecordOperation.QueryRecordCount)]
         public int QueryMenuCount()
         {
-            return m_dataContext.Table<Menu>().QueryRecordCount();
+            return m_coreContext.Table<Menu>().QueryRecordCount();
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Menu), RecordOperation.QueryRecords)]
         public IEnumerable<Menu> QueryMenus(string sortField, bool ascending, int page, int pageSize)
         {
-            return m_dataContext.Table<Menu>().QueryRecords(sortField, ascending, page, pageSize);
+            return m_coreContext.Table<Menu>().QueryRecords(sortField, ascending, page, pageSize);
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Menu), RecordOperation.DeleteRecord)]
         public void DeleteMenu(int id)
         {
-            m_dataContext.Table<Menu>().DeleteRecord(id);
+            m_coreContext.Table<Menu>().DeleteRecord(id);
         }
 
         [AuthorizeHubRole("Administrator")]
@@ -226,14 +252,14 @@ namespace SOETools
         public void AddNewMenu(Menu record)
         {
             record.CreatedOn = DateTime.UtcNow;
-            m_dataContext.Table<Menu>().AddNewRecord(record);
+            m_coreContext.Table<Menu>().AddNewRecord(record);
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Menu), RecordOperation.UpdateRecord)]
         public void UpdateMenu(Menu record)
         {
-            m_dataContext.Table<Menu>().UpdateRecord(record);
+            m_coreContext.Table<Menu>().UpdateRecord(record);
         }
 
         #endregion
@@ -244,21 +270,21 @@ namespace SOETools
         [RecordOperation(typeof(MenuItem), RecordOperation.QueryRecordCount)]
         public int QueryMenuItemCount(int parentID)
         {
-            return m_dataContext.Table<MenuItem>().QueryRecordCount(new RecordRestriction("MenuID = {0}", parentID));
+            return m_coreContext.Table<MenuItem>().QueryRecordCount(new RecordRestriction("MenuID = {0}", parentID));
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(MenuItem), RecordOperation.QueryRecords)]
         public IEnumerable<MenuItem> QueryMenuItems(int parentID, string sortField, bool ascending, int page, int pageSize)
         {
-            return m_dataContext.Table<MenuItem>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("MenuID = {0}", parentID));
+            return m_coreContext.Table<MenuItem>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("MenuID = {0}", parentID));
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(MenuItem), RecordOperation.DeleteRecord)]
         public void DeleteMenuItem(int id)
         {
-            m_dataContext.Table<MenuItem>().DeleteRecord(id);
+            m_coreContext.Table<MenuItem>().DeleteRecord(id);
         }
 
         [AuthorizeHubRole("Administrator")]
@@ -276,7 +302,7 @@ namespace SOETools
             if (string.IsNullOrEmpty(record.Text))
                 record.Text = " ";
 
-            m_dataContext.Table<MenuItem>().AddNewRecord(record);
+            m_coreContext.Table<MenuItem>().AddNewRecord(record);
         }
 
         [AuthorizeHubRole("Administrator")]
@@ -287,7 +313,7 @@ namespace SOETools
             if (string.IsNullOrEmpty(record.Text))
                 record.Text = " ";
 
-            m_dataContext.Table<MenuItem>().UpdateRecord(record);
+            m_coreContext.Table<MenuItem>().UpdateRecord(record);
         }
 
         #endregion
@@ -398,7 +424,7 @@ namespace SOETools
         /// <returns>Page setting for specified page.</returns>
         public string GetPageSetting(int pageID, string key, string defaultValue)
         {
-            Page page = m_dataContext.Table<Page>().LoadRecord(pageID);
+            Page page = m_coreContext.Table<Page>().LoadRecord(pageID);
             Dictionary<string, string> pageSettings = (page?.ServerConfiguration ?? "").ParseKeyValuePairs();
             AppModel model = MvcApplication.DefaultModel;
             return model.GetPageSetting(pageSettings, model.Global.PageDefaults, key, defaultValue);
