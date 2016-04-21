@@ -10,7 +10,7 @@
     ViewBag.SOEs = dataContext.Table<CycleDataSOEPointView>().QueryRecords("Timestamp");
     string statusImagePath = Model.GetPageSetting(ViewBag, "statusImagePath", ViewBag.UserSetting);
     statusImagePath = Url.Content(statusImagePath).EnsureEnd('/');
-    string pointCodeImagePath = Model.GetPageSetting(ViewBag, "pointCodeImagePath", "~/Images/PointCode/source/");
+    string pointCodeImagePath = Model.GetPageSetting(ViewBag, "pointCodeImagePath", "~/Images/PointCode/");
     pointCodeImagePath = Url.Content(pointCodeImagePath).EnsureEnd('/');
 
 }
@@ -78,7 +78,7 @@
             <td align="center" width="20%" data-bind="text: dateFixer(Timestamp).formatDate(DateTimeFormat)"></td>
             <td width="10%" align="center" data-bind="text: Phasing"></td>
             <td width="10%" class="text-center valign-middle"><img src="~/Images/UpDownState/Circle Set/48/000.png" data-bind="attr: {'update-attr': getStatusImage($($element), UpState)}"></td>
-            <td width="10%" class="text-center valign-middle"><img src="~/Images/PointCode/source/1000.png" style="height: 50px; width: 50px" data-bind="attr: {'update-attr': getPointCodeImage($($element), PointCode)}"></td>
+            <td width="10%" class="text-center valign-middle"><img src="~/Images/PointCode/1000.png" style="height: 50px; width: 50px" data-bind="attr: {'update-attr': getPointCodeImage($($element), PointCode)}"></td>
             <td width="10%" class="text-center valign-middle"><img src="~/Images/UpDownState/Circle Set/48/000.png" data-bind="attr: {'update-attr': getStatusImage($($element), DownState)}"></td>
             <td width="10%" align="center" data-bind="text: getSumISquaredT($data)"></td>
             <td width="10%" align="center" data-bind="text: getImax($data)"></td>
