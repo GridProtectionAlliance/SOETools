@@ -14,15 +14,8 @@ namespace SOETools.Model
         public string Name { get; set; }
         public int MeterID { get; set; }
         public DateTime Timestamp { get; set; }
-        public float VX1RMS { get; set; }
-        public float VX2RMS { get; set; }
-        public float VX3RMS { get; set; }
-        public float VY1RMS { get; set; }
-        public float VY2RMS { get; set; }
-        public float VY3RMS { get; set; }
-        public float I1RMS { get; set; }
-        public float I2RMS { get; set; }
-        public float I3RMS { get; set; }
+        public float Vmin { get; set; }
+        public float Imax { get; set; }
         public string PointCode { get; set; }
         public string UpState { get; set; }
         public string DownState { get; set; }

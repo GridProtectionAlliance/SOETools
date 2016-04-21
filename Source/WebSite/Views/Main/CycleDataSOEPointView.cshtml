@@ -7,7 +7,7 @@
 @model SOETools.Model.AppModel
 @{
     DataContext dataContext = Model.DbDataContext;
-    ViewBag.SOEs = dataContext.Table<CycleDataSOEPointView>().QueryRecords("Timestamp");
+    ViewBag.SOEs = dataContext.Table<CycleDataSOEPointView>().QueryRecords("IncidentID");
     string statusImagePath = Model.GetPageSetting(ViewBag, "statusImagePath", ViewBag.UserSetting);
     statusImagePath = Url.Content(statusImagePath).EnsureEnd('/');
     string pointCodeImagePath = Model.GetPageSetting(ViewBag, "pointCodeImagePath", "~/Images/PointCode/");
@@ -52,10 +52,10 @@
                     <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Meter&nbsp;Names&nbsp;&nbsp;</u>&nbsp;
                         <div class="input-group"><input id="filterMn" type="text" class="form-control" placeholder="Enter meter name here...">
                         </div></td>
-                    <td align="center" width="20%">&nbsp;<u>&nbsp;&nbsp;Time&nbsp;Stamp&nbsp;&nbsp;</u>&nbsp;
+                    <td align="center" width="15%">&nbsp;<u>&nbsp;&nbsp;Time&nbsp;Stamp&nbsp;&nbsp;</u>&nbsp;
                         <div class="input-group"><input id="filterd" type="text" class="form-control" placeholder="Enter date here...">
                         </div></td>
-                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Phasing&nbsp;&nbsp;</u>&nbsp;</td>
+                    <td align="center" width="5%">&nbsp;<u>&nbsp;&nbsp;Phasing&nbsp;&nbsp;</u>&nbsp;</td>
                     <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;UpStream&nbsp;&nbsp;</u>&nbsp;</td>
                     <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;State&nbsp;&nbsp;</u>&nbsp;</td>
                     <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;DownStream&nbsp;&nbsp;</u>&nbsp;</td>
@@ -70,24 +70,25 @@
     </div>
 </div>
 <div>
-    <table class="table table-responsive" >
+    <table class="table table-responsive">
         <tbody class="searchable" data-bind="foreach: events">
         <tr>
             <td align="center" width="10%" data-bind="text: IncidentID"></td>
             <td align="center" width="10%" data-bind="text: Name"></td>
-            <td align="center" width="20%" data-bind="text: dateFixer(Timestamp).formatDate(DateTimeFormat)"></td>
-            <td width="10%" align="center" data-bind="text: Phasing"></td>
-            <td width="10%" class="text-center valign-middle"><img src="~/Images/UpDownState/Circle Set/48/000.png" data-bind="attr: {'update-attr': getStatusImage($($element), UpState)}"></td>
-            <td width="10%" class="text-center valign-middle"><img src="~/Images/PointCode/1000.png" style="height: 50px; width: 50px" data-bind="attr: {'update-attr': getPointCodeImage($($element), PointCode)}"></td>
-            <td width="10%" class="text-center valign-middle"><img src="~/Images/UpDownState/Circle Set/48/000.png" data-bind="attr: {'update-attr': getStatusImage($($element), DownState)}"></td>
-            <td width="10%" align="center" data-bind="text: getSumISquaredT($data)"></td>
-            <td width="10%" align="center" data-bind="text: getImax($data)"></td>
-            <td width="10%" align="center" data-bind="text: getVmin($data)"></td>
+            <td align="center" width="15%" data-bind="text: dateFixer(Timestamp).formatDate(DateTimeFormat)"></td>
+            <td width="5%" align="center" data-bind="text: Phasing"></td>
+            <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getStatusImage($($element), UpState)}"></td>
+            <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getPointCodeImage($($element), PointCode)}"></td>
+            <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getStatusImage($($element), DownState)}"></td>
+            <td width="10%" align="center" data-bind="text: getSumISquaredT($data).toFixed(4)"></td>
+            <td width="10%" align="center" data-bind="text: Imax"></td>
+            <td width="10%" align="center" data-bind="text: Vmin"></td>
         </tr>
         </tbody>
     </table>
-  
+
 </div>
+
 <style>
 #sticky {
     background: #FFF;
@@ -157,33 +158,20 @@
     function getPointCodeImage(element, data) {
         element.attr("src", "@pointCodeImagePath" + data + ".png");
         element.attr("title", data);
-        element.width = "50";
-        element.height = "50";
     }
 
+    var lastid, sum = 0;
     function getSumISquaredT(record) {
-        var sum = 0;
-        var time = 1 / 60;
-        sum += record.I1RMS ^ 2 * time;
-        sum += record.I2RMS ^ 2 * time;
-        sum += record.I3RMS ^ 2 * time;
-        return sum;
+        if (record.IncidentID !== lastid) {
+            lastid = record.IncidentID;
+            sum = (record.Imax.toExponential(2) / 60.0);
+            return sum;
+        } else {
+            sum += (record.Imax.toExponential(2) / 60.0);
+            return sum;
+        }
+           
+        
     }
 
-    function getImax(record) {
-        var max = record.I1RMS;
-        if (max < record.I2RMS) max = record.I2RMS;
-        if (max < record.I3RMS) max = record.I3RMS;
-        return max;
-    }
-
-    function getVmin(record) {
-        var min = record.VX1RMS;
-        if (min > record.VX2RMS) min = record.VX2RMS;
-        if (min > record.VX3RMS) min = record.VX3RMS;
-        if (min > record.VY1RMS) min = record.VY1RMS;
-        if (min > record.VY2RMS) min = record.VY2RMS;
-        if (min > record.VY3RMS) min = record.VY3RMS;
-        return min;
-    }
 </script>
