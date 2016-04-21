@@ -105,6 +105,13 @@ namespace SOETools.Controllers
             return View();
         }
 
+
+        public ActionResult History()
+        {
+            m_appModel.ConfigureView(Url.RequestContext, "History", ViewBag);
+            return View();
+        }
+
         public ActionResult Contact()
         {
             m_appModel.ConfigureView(Url.RequestContext, "Contact", ViewBag);

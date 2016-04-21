@@ -28,6 +28,7 @@ namespace SOETools.Model
         public string DownState { get; set; }
         public string Phasing { get; set; }
         public int IncidentID { get; set; }
+        public int ParentID { get; set; }
 
     }
 }
