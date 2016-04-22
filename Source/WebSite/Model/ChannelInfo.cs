@@ -37,5 +37,6 @@ namespace SOETools.Model
         public string Phase { get; set; }
         public string SeriesType { get; set; }
         public string Orientation { get; set; }
+        public string Phasing { get; set; }
     }
 }

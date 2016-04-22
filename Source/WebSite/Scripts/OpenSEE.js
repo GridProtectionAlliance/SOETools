@@ -37,19 +37,29 @@ var zoom = false;
 var xaxisHover = 0;
 var phasorData = [];
 
-var colorVAN = '#A30000';
-var colorVBN = '#0029A3';
-var colorVCN = '#007A29';
+var colorVAN = '#3399cc';
+var colorVBN = '#cc9933';
+var colorVCN = '#cc33cc';
 
-var colorIAN = '#FF0000';
-var colorIBN = '#0066CC';
-var colorICN = '#33CC33';
+var colorIAN = '#3399cc';
+var colorIBN = '#cc9933';
+var colorICN = '#cc33cc';
 
 var colorBrown = '#996633';
 var colorGray = '#333300';
 var colorPurple = '#9900FF';
 var colorAqua = '#66CCFF';
 var colorTan = '#CC9900';
+
+
+//var oldcolorVAN = '#A30000';
+//var oldcolorVBN = '#0029A3';
+//var oldcolorVCN = '#007A29';
+  
+//var oldcolorIAN = '#FF0000';
+//var oldcolorIBN = '#0066CC';
+//var oldcolorICN = '#33CC33';
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -312,6 +322,24 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
 
         if (include)
             seriesIndexes.push(key);
+
+        if (series.ChannelName.includes(1)) {
+            series.ChannelName = series.ChannelName.replace("1", series.Phasing[0]);
+            series.Phase = series.Phasing[0];
+        }
+        else if (series.ChannelName.includes(2)) {
+            series.ChannelName = series.ChannelName.replace("2", series.Phasing[1]);
+            series.Phase = series.Phasing[1];
+        }
+        else {
+            series.ChannelName = series.ChannelName.replace("3", series.Phasing[2]);
+            series.Phase = series.Phasing[2];
+        }
+
+        series.flotSeries = {
+            data: [],
+            label: series.ChannelName.replace("Wave ", "")
+        };
     });
 
     seriesIndexes.sort(function (index1, index2) {
@@ -323,9 +351,9 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
             else if (series.MeasurementCharacteristic == "WaveAmplitude")
                 order += 20;
 
-            if (series.Phase == "General2")
+            if (series.Phase == "C")
                 order += 1;
-            else if (series.Phase == "General3")
+            else if (series.Phase == "B")
                 order += 2;
             else if (series.Phase == "RES")
                 order += 3;
@@ -420,10 +448,7 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
             if (!series.DataPoints)
                 return;
 
-            series.flotSeries = {
-                data: [],
-                label: series.ChannelName.replace("Wave ", "")
-            };
+            
 
             series.visible =
                 series.MeasurementCharacteristic != "RMS" &&
@@ -431,11 +456,11 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
                 series.MeasurementCharacteristic != "WaveAmplitude" &&
                 series.MeasurementCharacteristic != "WaveError";
 
-            if (series.Phase == "General1")
+            if (series.Phase == "A")
                 series.flotSeries.color = colorVAN;
-            else if (series.Phase == "General2")
+            else if (series.Phase == "B")
                 series.flotSeries.color = colorVBN;
-            else if (series.Phase == "General3")
+            else if (series.Phase == "C")
                 series.flotSeries.color = colorVCN;
             else
                 series.visible = false;
@@ -471,22 +496,17 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
             if (!series.DataPoints)
                 return;
 
-            series.flotSeries = {
-                data: [],
-                label: series.ChannelName.replace("Wave ", "")
-            };
-
             series.visible =
                 series.MeasurementCharacteristic != "RMS" &&
                 series.MeasurementCharacteristic != "AngleFund" &&
                 series.MeasurementCharacteristic != "WaveAmplitude" &&
                 series.MeasurementCharacteristic != "WaveError";
 
-            if (series.Phase == "General1")
+            if (series.Phase == "A")
                 series.flotSeries.color = colorIAN;
-            else if (series.Phase == "General2")
+            else if (series.Phase == "B")
                 series.flotSeries.color = colorIBN;
-            else if (series.Phase == "General3")
+            else if (series.Phase == "C")
                 series.flotSeries.color = colorICN;
             else
                 series.visible = false;
@@ -528,22 +548,17 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
             if (!series.DataPoints)
                 return;
 
-            series.flotSeries = {
-                data: [],
-                label: series.ChannelName.replace("Wave ", "")
-            };
-
             series.visible =
                 series.MeasurementCharacteristic != "RMS" &&
                 series.MeasurementCharacteristic != "AngleFund" &&
                 series.MeasurementCharacteristic != "WaveAmplitude" &&
                 series.MeasurementCharacteristic != "WaveError";
 
-            if (series.Phase == "General1")
+            if (series.Phase == "A")
                 series.flotSeries.color = colorVAN;
-            else if (series.Phase == "General2")
+            else if (series.Phase == "B")
                 series.flotSeries.color = colorVBN;
-            else if (series.Phase == "General3")
+            else if (series.Phase == "C")
                 series.flotSeries.color = colorVCN;
             else
                 series.visible = false;
