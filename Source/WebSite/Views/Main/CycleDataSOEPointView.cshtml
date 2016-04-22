@@ -73,7 +73,7 @@
     <table class="table table-responsive">
         <tbody class="searchable" data-bind="foreach: events">
         <tr>
-            <td align="center" width="10%" data-bind="text: IncidentID"></td>
+            <td align="center" width="10%"><button type="button" class="btn btn-link" data-bind="text: IncidentID, click: openSEEModal.bind($data)"></button></td>
             <td align="center" width="10%" data-bind="text: Name"></td>
             <td align="center" width="15%" data-bind="text: dateFixer(Timestamp).formatDate(DateTimeFormat)"></td>
             <td width="5%" align="center" data-bind="text: Phasing"></td>
@@ -89,6 +89,17 @@
 
 </div>
 
+<div id="openSeeDialog" class="modal modal-wide fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <iframe style="border: none" id="openSeeFrame"></iframe>
+                <button type="button" class="btn btn-default pull-right popup-ok-button" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 <style>
 #sticky {
     background: #FFF;
@@ -172,6 +183,17 @@
         }
            
         
+    }
+
+    function openSEEModal(record) {
+        //console.log(record);
+        $("#openSeeFrame").attr({
+            "src": "@Url.Content("~/Main/OpenSee")?EventID=" + record.ID + "&Title=" + encodeURIComponent(record.Title),
+            "height": ($(document).height() - 250) + "px",
+            "width": "100%"
+    });
+
+    $("#editActionItemDialog").modal("show");
     }
 
 </script>
