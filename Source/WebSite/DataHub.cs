@@ -23,10 +23,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using GSF;
+using GSF.Collections;
 using GSF.Data.Model;
 using GSF.Identity;
 using GSF.Web.Model;
@@ -147,6 +152,112 @@ namespace SOETools
         #endregion
 
         // Client-side script functionality
+
+        #region [ OpenSEE Table Operations ]
+
+        public Task<Dictionary<int, List<double[]>>> QueryEventData(int eventID)
+        {
+            return Task.Run(() =>
+            {
+                const string EventDataQueryFormat =
+                    "SELECT " +
+                    "    EventData.TimeDomainData, " +
+                    "    EventData.FrequencyDomainData " +
+                    "FROM " +
+                    "    Event JOIN " +
+                    "    EventData ON Event.EventDataID = EventData.ID " +
+                    "WHERE Event.ID = {0}";
+
+                Dictionary<int, List<double[]>> dataLookup = new Dictionary<int, List<double[]>>();
+                byte[] timeDomainData = null;
+                byte[] frequencyDomainData = null;
+
+                using (IDataReader reader = m_dbContext.Connection.ExecuteReader(EventDataQueryFormat, eventID))
+                {
+                    while (reader.Read())
+                    {
+                        timeDomainData = Decompress((byte[])reader["TimeDomainData"]);
+                        frequencyDomainData = Decompress((byte[])reader["FrequencyDomainData"]);
+                    }
+                }
+
+                if ((object)timeDomainData == null || (object)frequencyDomainData == null)
+                    return dataLookup;
+
+                return dataLookup.Merge(
+                    GetDataLookup(timeDomainData),
+                    GetDataLookup(frequencyDomainData));
+            });
+        }
+
+        private byte[] Decompress(byte[] compressedBytes)
+        {
+            using (MemoryStream memoryStream = new MemoryStream(compressedBytes))
+            using (GZipStream gzipStream = new GZipStream(memoryStream, CompressionMode.Decompress))
+            using (MemoryStream destinationStream = new MemoryStream())
+            {
+                gzipStream.CopyTo(destinationStream);
+                return destinationStream.ToArray();
+            }
+        }
+
+        private Dictionary<int, List<double[]>> GetDataLookup(byte[] bytes)
+        {
+            int offset;
+            int samples;
+            double[] times;
+
+            int channelID;
+            List<double[]> dataSeries;
+            Dictionary<int, List<double[]>> dataLookup;
+
+            offset = 0;
+            samples = LittleEndian.ToInt32(bytes, offset);
+            offset += sizeof(int);
+
+            long epoch = new DateTime(1970, 1, 1).Ticks;
+
+            times = new double[samples];
+
+            for (int i = 0; i < samples; i++)
+            {
+                times[i] = (LittleEndian.ToInt64(bytes, offset) - epoch) / (double)TimeSpan.TicksPerMillisecond;
+                offset += sizeof(long);
+            }
+
+            dataLookup = new Dictionary<int, List<double[]>>();
+
+            while (offset < bytes.Length)
+            {
+                dataSeries = new List<double[]>();
+                channelID = GetChannelID(LittleEndian.ToInt32(bytes, offset));
+                offset += sizeof(int);
+
+                for (int i = 0; i < samples; i++)
+                {
+                    dataSeries.Add(new double[] { times[i], LittleEndian.ToDouble(bytes, offset) });
+                    offset += sizeof(double);
+                }
+
+                dataLookup.Add(channelID, dataSeries);
+            }
+
+            return dataLookup;
+        }
+
+        private int GetChannelID(int seriesID)
+        {
+            const string QueryFormat =
+                "SELECT Channel.ID " +
+                "FROM " +
+                "    Channel JOIN " +
+                "    Series ON Series.ChannelID = Channel.ID " +
+                "WHERE Series.ID = {0}";
+
+            return m_dbContext.Connection.ExecuteScalar<int>(QueryFormat, seriesID);
+        }
+
+        #endregion
 
         #region [ CycleDataSOEPointView Table Operations ]
 

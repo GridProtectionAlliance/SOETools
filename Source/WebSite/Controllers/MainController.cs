@@ -21,7 +21,11 @@
 //
 //******************************************************************************************************
 
+using System;
+using System.Data;
+using System.Linq;
 using System.Web.Mvc;
+using GSF.Data.Model;
 using GSF.Web.Model;
 using GSF.Web.Security;
 using SOETools.Model;
@@ -138,6 +142,66 @@ namespace SOETools.Controllers
         {
             m_dbModel.ConfigureView<Model.CycleDataSOEPointView>(Url.RequestContext, "CycleDataSOEPointView", ViewBag);
             ViewBag.UserSetting = "~/Images/UpDownState/Box Set/";
+            return View();
+        }
+
+        public ActionResult OpenSEE()
+        {
+            string eventID = Url.RequestContext.RouteData.Values["id"] as string ?? "-1";
+            EventInfo eventInfo = m_dbContext.Table<EventInfo>().QueryRecords(restriction: new RecordRestriction("EventID = {0}", eventID)).FirstOrDefault();
+
+            ViewBag.PreviousEventID = -1;
+            ViewBag.NextEventID = -1;
+            ViewBag.EventInfo = null;
+            ViewBag.Channels = Enumerable.Empty<ChannelInfo>();
+            ViewBag.SOEPoints = Enumerable.Empty<CycleDataSOEPointView>();
+
+            if ((object)eventInfo != null)
+            {
+                using (IDbCommand command = m_dbContext.Connection.Connection.CreateCommand())
+                {
+                    IDbDataParameter parameter = command.CreateParameter();
+                    parameter.ParameterName = "@EventID";
+                    parameter.Value = eventID;
+
+                    command.CommandText = "GetPreviousAndNextEventIds";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(parameter);
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader["previd"] is int)
+                                ViewBag.PreviousEventID = reader["previd"];
+
+                            if (reader["nextid"] is int)
+                                ViewBag.NextEventID = reader["nextid"];
+                        }
+                    }
+                }
+
+                ViewBag.EventInfo = eventInfo;
+                ViewBag.Channels = m_dbContext.Table<ChannelInfo>().QueryRecords(restriction: new RecordRestriction("MeterID = {0}", eventInfo.MeterID));
+
+                ViewBag.Markings = m_dbContext
+                    .Table<CycleDataSOEPointView>()
+                    .QueryRecords(restriction: new RecordRestriction("IncidentID = {0}", eventInfo.IncidentID))
+                    .Select(soePoint => soePoint.Timestamp.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds)
+                    .Select(milliseconds => new
+                    {
+                        color = "#000",
+                        lineWidth = 1,
+                        xaxis = new
+                        {
+                            from = milliseconds,
+                            to = milliseconds
+                        }
+                    });
+            }
+
+            m_dbModel.ConfigureView(Url.RequestContext, "OpenSEE", ViewBag);
+
             return View();
         }
 
