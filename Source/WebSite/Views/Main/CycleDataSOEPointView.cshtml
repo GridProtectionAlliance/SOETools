@@ -7,7 +7,7 @@
 @model SOETools.Model.AppModel
 @{
     DataContext dataContext = Model.DbDataContext;
-    ViewBag.SOEs = dataContext.Table<CycleDataSOEPointView>().QueryRecords("IncidentID");
+    ViewBag.SOEs = dataContext.Table<CycleDataSOEPointView>().QueryRecords("IncidentID, TimeStamp");
     string statusImagePath = Model.GetPageSetting(ViewBag, "statusImagePath", ViewBag.UserSetting);
     statusImagePath = Url.Content(statusImagePath).EnsureEnd('/');
     string pointCodeImagePath = Model.GetPageSetting(ViewBag, "pointCodeImagePath", "~/Images/PointCode/");
