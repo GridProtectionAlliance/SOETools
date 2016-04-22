@@ -7,7 +7,7 @@
 @model SOETools.Model.AppModel
 @{
     DataContext dataContext = Model.DbDataContext;
-    ViewBag.SOEs = dataContext.Table<CycleDataSOEPointView>().QueryRecords("IncidentID, TimeStamp");
+    ViewBag.SOEs = dataContext.Table<CycleDataSOEPointView>().QueryRecords("StartTime, TimeStamp");
     string statusImagePath = Model.GetPageSetting(ViewBag, "statusImagePath", ViewBag.UserSetting);
     statusImagePath = Url.Content(statusImagePath).EnsureEnd('/');
     string pointCodeImagePath = Model.GetPageSetting(ViewBag, "pointCodeImagePath", "~/Images/PointCode/");
@@ -59,7 +59,7 @@
                     <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;UpStream&nbsp;&nbsp;</u>&nbsp;</td>
                     <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;State&nbsp;&nbsp;</u>&nbsp;</td>
                     <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;DownStream&nbsp;&nbsp;</u>&nbsp;</td>
-                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Sigma(i2t)&nbsp;&nbsp;</u>&nbsp;</td>
+                    @*<td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Sigma(i2t)&nbsp;&nbsp;</u>&nbsp;</td>*@
                     <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Imax&nbsp;&nbsp;</u>&nbsp;</td>
                     <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Vmin&nbsp;&nbsp;</u>&nbsp;</td>
 
@@ -80,7 +80,7 @@
             <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getStatusImage($($element), UpState)}"></td>
             <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getPointCodeImage($($element), PointCode)}"></td>
             <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getStatusImage($($element), DownState)}"></td>
-            <td width="10%" align="center" data-bind="text: getSumISquaredT($data).toFixed(4)"></td>
+            @*<td width="10%" align="center" data-bind="text: getSumISquaredT($data).toFixed(4)"></td>*@
             <td width="10%" align="center" data-bind="text: Imax"></td>
             <td width="10%" align="center" data-bind="text: Vmin"></td>
         </tr>
