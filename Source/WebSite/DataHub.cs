@@ -264,22 +264,45 @@ namespace SOETools
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.QueryRecordCount)]
-        public int QueryCycleDataSOEPointViewCount()
+        public int QueryCycleDataSOEPointViewCount(int parentID)
         {
-            return m_dbContext.Table<CycleDataSOEPointView>().QueryRecordCount();
+            return m_dbContext.Table<CycleDataSOEPointView>().QueryRecordCount(restriction: new RecordRestriction("IncidentID = {0}", parentID));
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.QueryRecords)]
-        public IEnumerable<CycleDataSOEPointView> QueryCycleDataSOEPointViewItems(string sortField, bool ascending, int page, int pageSize)
+        public IEnumerable<CycleDataSOEPointView> QueryCycleDataSOEPointViewItems(int parentID, string sortField, bool ascending, int page, int pageSize)
         {
-            return m_dbContext.Table<CycleDataSOEPointView>().QueryRecords(sortField, ascending, page, pageSize);
+            return m_dbContext.Table<CycleDataSOEPointView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("IncidentID = {0}", parentID));
         }
 
 
-      
+
 
         #endregion
+
+        #region [ IncidentEventCycleDataView Table Operations ]
+
+
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecordCount)]
+        public int QueryIncidentEventCycleDataViewCount()
+        {
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount();
+        }
+
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecords)]
+        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(string sortField, bool ascending, int page, int pageSize)
+        {
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize);
+        }
+
+
+
+
+        #endregion
+
 
         #region [ Page Table Operations ]
 

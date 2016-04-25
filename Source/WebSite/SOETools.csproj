@@ -211,6 +211,7 @@
     <Compile Include="Model\CycleDataSOEPointView.cs" />
     <Compile Include="Model\Document.cs" />
     <Compile Include="Model\GlobalSettings.cs" />
+    <Compile Include="Model\IncidentEventCycleDataView.cs" />
     <Compile Include="Model\MenuItem.cs" />
     <Compile Include="Model\NoticeLog.cs" />
     <Compile Include="Model\NoticeUserLink.cs" />
@@ -1547,6 +1548,7 @@
     <Content Include="Views\Main\CycleDataSOEPointView.cshtml" />
     <Content Include="Views\Main\History.cshtml" />
     <Content Include="Views\Main\OpenSEE.cshtml" />
+    <Content Include="Views\Main\IncidentEventCycleDataView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

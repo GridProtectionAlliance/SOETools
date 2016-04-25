@@ -145,6 +145,12 @@ namespace SOETools.Controllers
             return View();
         }
 
+        public ActionResult IncidentEventCycleDataView()
+        {
+            m_dbModel.ConfigureView<IncidentEventCycleDataView>(Url.RequestContext, "IncidentEventCycleDataView", ViewBag);
+            return View();
+        }
+
         public ActionResult OpenSEE()
         {
             string eventID = Url.RequestContext.RouteData.Values["id"] as string ?? "-1";

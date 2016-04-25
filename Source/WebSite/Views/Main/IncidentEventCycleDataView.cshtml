@@ -1,0 +1,100 @@
+﻿@*******************************************************************************************************
+    //  CycleDataSOEPointView.cshtml - Gbtc
+    //
+    //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
+    //
+    //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+    //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+    //  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may
+    //  not use this file except in compliance with the License. You may obtain a copy of the License at:
+    //
+    //      http://opensource.org/licenses/MIT
+    //
+    //  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+    //  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+    //  License for the specific language governing permissions and limitations.
+    //
+    //  Code Modification History:
+    //  ----------------------------------------------------------------------------------------------------
+    //  04/21/2016 - Stephen Wills
+    //       Generated original version of source code.
+    //
+    //*****************************************************************************************************@
+@using System.Collections.Specialized
+@using GSF
+@using GSF.Data.Model
+@using GSF.Web.Model
+@using SOETools.Model
+@model SOETools.Model.AppModel
+@{
+    DataContext dataContext = Model.DbDataContext;
+}
+
+@{
+    ViewBag.HeaderColumns = new[]
+{
+        //    { "Field", "Label", "Classes" }
+        new[] { "StartTime", "Date/Time", "text-center"},
+        new[] { "Device", "Device", "text-center" },
+        new[] { "PhaseA", "Phase A", "text-center"},
+        new[] { "PhaseB", "Phase B", "text-center" },
+        new[] { "PhaseC", "Phase C", "text-center"},
+        new[] { "Duration", "Duration", "text-center" },
+        new[] { null, "SOE Data", "text-center"},
+        new[] { null, " ", "text-center"}
+
+    };
+
+    ViewBag.BodyRows = BodyRows().ToString();
+    ViewBag.HideAddNewButton = true;
+    ViewBag.AddNewEditDialog = AddNewEditDialog(dataContext).ToString();
+    ViewBag.AddNewEditTitle = "Incidents";
+
+}
+
+<div id="openSOEDialog" class="modal modal-wide fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <iframe style="border: none" id="openSOEFrame"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+@helper BodyRows()
+{
+        <td width="15%" class="text-center valign-middle"><div data-bind="text: StartTime.formatDate(DateTimeFormat)"></div></td>
+        <td width="15%" class="text-center valign-middle"><div data-bind="text: Device"></div></td>
+        <td width="15%" class="text-center valign-middle"><div data-bind="text: PhaseA.toFixed(0)"></div></td>
+        <td width="15%" class="text-center valign-middle"><div data-bind="text: PhaseB.toFixed(0)"></div></td>
+        <td width="15%" class="text-center valign-middle"><div data-bind="text: PhaseC.toFixed(0)"></div></td>
+        <td width="15%" class="text-center valign-middle"><div data-bind="text: Duration"></div></td>
+        <td width="5%" class="text-left valign-middle" nowrap><button type="button" class="btn btn-danger" data-bind="click: openSOEModal.bind($data)">A</button></td>
+        <td width="5%" class="text-left valign-middle" nowrap><button type="button" class="btn btn-danger" data-bind="">W</button></td>
+
+}
+
+@helper AddNewEditDialog(DataContext dataContext)
+{
+
+    <div class="col-md-12">
+    </div>
+}
+@Html.Partial("PagedViewModel")
+@section Scripts {
+    <script>
+        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag))
+
+        function openSOEModal(record) {
+            //console.log(record);
+            $("#openSOEFrame").attr({
+                "src": "@Url.Content("~/Main/CycleDataSOEPointView/?IncidentID=")" + record.ID,
+                "height": ($(window).height() - 250) + "px",
+                "width": "100%"
+        });
+
+        $("#openSOEDialog").modal("show");
+        }
+    </script>
+}

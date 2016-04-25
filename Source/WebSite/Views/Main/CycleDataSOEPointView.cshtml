@@ -1,4 +1,25 @@
-﻿
+﻿@*******************************************************************************************************
+//  CycleDataSOEPointView.cshtml - Gbtc
+//
+//  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may
+//  not use this file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  04/21/2016 - Stephen Wills
+//       Generated original version of source code.
+//
+//*****************************************************************************************************@
 @using System.Collections.Specialized
 @using GSF
 @using GSF.Data.Model
@@ -7,87 +28,48 @@
 @model SOETools.Model.AppModel
 @{
     DataContext dataContext = Model.DbDataContext;
-    ViewBag.SOEs = dataContext.Table<CycleDataSOEPointView>().QueryRecords("StartTime, TimeStamp");
+    NameValueCollection parameters = Request.QueryString;
+    int IncidentID = int.Parse(parameters["IncidentID"] ?? "0");
     string statusImagePath = Model.GetPageSetting(ViewBag, "statusImagePath", ViewBag.UserSetting);
     statusImagePath = Url.Content(statusImagePath).EnsureEnd('/');
     string pointCodeImagePath = Model.GetPageSetting(ViewBag, "pointCodeImagePath", "~/Images/PointCode/");
     pointCodeImagePath = Url.Content(pointCodeImagePath).EnsureEnd('/');
 
 }
+@{
+    ViewBag.HeaderColumns = new[]
+{
+        //    { "Field", "Label", "Classes" }
+        new[] { "IncidentID", "Incident ID", "text-center"},
+        new[] { "Name", "Meter Name", "text-center" },
+        new[] { "Timestamp", "Date/Time", "text-center"},
+        new[] { "Phasing", "Phasing", "text-center" },
+        new[] { "UpState", "UpState", "text-center"},
+        new[] { "PointCode", "State", "text-center" },
+        new[] { "DownState", "DownState", "text-center"},
+        new[] { "Imax", "Imax", "text-center"},
+        new[] { "Vmin", "Vmin", "text-center"}
 
+    };
 
-<script src="~/Scripts/jquery-2.2.1.js"></script>
-<script src="~/Scripts/jquery-ui.js"></script>
-<script src="~/Scripts/bootstrap.min.js"></script>
-<script src="~/Scripts/ie10-viewport-bug-workaround.js"></script>
-<script src="~/Scripts/respond.js"></script>
-<script src="~/Scripts/bootstrap-datepicker.min.js"></script>
-<script src="~/Scripts/bootstrap-toolkit.min.js"></script>
-<script src="~/Scripts/jquery.signalR-2.2.0.min.js"></script>
-<script src="~/Scripts/gsf.web.client.js"></script>
-<script src="~/signalr/hubs"></script>
-<script src="~/Scripts/Site.js"></script>
-<script src="~/Scripts/knockout-3.4.0.debug.js"></script>
-<script src="~/Scripts/knockout.mapping-latest.debug.js"></script>
-<script src="~/Scripts/knockout.validation.min.js"></script>
-<script src="~/Scripts/ko-reactor.min.js"></script>
-<script src="~/Scripts/ko.observableDictionary.js"></script>
-<script src="~/Scripts/js.cookie.js"></script>
-
-<div id="sticky-anchor"></div>
-
-<div style="width: 100%">
-    <div id="sticky" style="position: static">
-        
-        <div>
-            <table class="table table-responsive">
-                <thead>
-                <tr>
-                    <td align="center" width="10%">
-                        &nbsp;<u>&nbsp;&nbsp;Incident&nbsp;ID&nbsp;&nbsp;</u>&nbsp;
-                        <div class="input-group">
-                            <input id="filterIn" type="text" class="form-control" placeholder="Enter incident id here...">
-                        </div>
-                    </td>
-                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Meter&nbsp;Names&nbsp;&nbsp;</u>&nbsp;
-                        <div class="input-group"><input id="filterMn" type="text" class="form-control" placeholder="Enter meter name here...">
-                        </div></td>
-                    <td align="center" width="15%">&nbsp;<u>&nbsp;&nbsp;Time&nbsp;Stamp&nbsp;&nbsp;</u>&nbsp;
-                        <div class="input-group"><input id="filterd" type="text" class="form-control" placeholder="Enter date here...">
-                        </div></td>
-                    <td align="center" width="5%">&nbsp;<u>&nbsp;&nbsp;Phasing&nbsp;&nbsp;</u>&nbsp;</td>
-                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;UpStream&nbsp;&nbsp;</u>&nbsp;</td>
-                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;State&nbsp;&nbsp;</u>&nbsp;</td>
-                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;DownStream&nbsp;&nbsp;</u>&nbsp;</td>
-                    @*<td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Sigma(i2t)&nbsp;&nbsp;</u>&nbsp;</td>*@
-                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Imax&nbsp;&nbsp;</u>&nbsp;</td>
-                    <td align="center" width="10%">&nbsp;<u>&nbsp;&nbsp;Vmin&nbsp;&nbsp;</u>&nbsp;</td>
-
-                </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-</div>
-<div>
-    <table class="table table-responsive">
-        <tbody class="searchable" data-bind="foreach: events">
-        <tr>
-            <td align="center" width="10%"><button type="button" class="btn btn-link" data-bind="text: IncidentID, click: openSEEModal.bind($data)"></button></td>
-            <td align="center" width="10%" data-bind="text: Name"></td>
-            <td align="center" width="15%" data-bind="text: dateFixer(Timestamp).formatDate(DateTimeFormat, false)"></td>
-            <td width="5%" align="center" data-bind="text: Phasing"></td>
-            <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getStatusImage($($element), UpState)}"></td>
-            <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getPointCodeImage($($element), PointCode)}"></td>
-            <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getStatusImage($($element), DownState)}"></td>
-            @*<td width="10%" align="center" data-bind="text: getSumISquaredT($data).toFixed(4)"></td>*@
-            <td width="10%" align="center" data-bind="text: Imax.toFixed(0)"></td>
-            <td width="10%" align="center" data-bind="text: Vmin.toFixed(0)"></td>
-        </tr>
-        </tbody>
-    </table>
-
-</div>
+    ViewBag.BodyRows = BodyRows().ToString();
+    ViewBag.HideAddNewButton = true;
+    ViewBag.AddNewEditDialog = AddNewEditDialog(dataContext).ToString();
+    ViewBag.AddNewEditTitle = "SOEPoints";
+}
+@helper BodyRows()
+{   
+    <td align="center" width="10%"><button type="button" class="btn btn-link" data-bind="text: IncidentID, click: openSEEModal.bind($data)"></button></td>
+    <td align="center" width="10%" data-bind="text: Name"></td>
+    <td align="center" width="15%" data-bind="text: dateFixer(Timestamp).formatDate(DateTimeFormat, false)"></td>
+    <td width="5%" align="center" data-bind="text: Phasing"></td>
+    <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getStatusImage($($element), UpState)}"></td>
+    <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getPointCodeImage($($element), PointCode)}"></td>
+    <td width="10%" class="text-center valign-middle"><img src="" data-bind="attr: {'update-attr': getStatusImage($($element), DownState)}"></td>
+    @*<td width="10%" align="center" data-bind="text: getSumISquaredT($data).toFixed(4)"></td>*@
+    <td width="10%" align="center" data-bind="text: Imax.toFixed(0)"></td>
+    <td width="10%" align="center" data-bind="text: Vmin.toFixed(0)"></td>
+}
 
 <div id="openSeeDialog" class="modal modal-wide fade" role="dialog">
     <div class="modal-dialog">
@@ -99,100 +81,106 @@
         </div>
     </div>
 </div>
-<style>
-#sticky {
-    background: #FFF;
-    width: 100%;
+
+@helper AddNewEditDialog(DataContext dataContext)
+{
+
+    <div class="col-md-12">
+    </div>
 }
+@Html.Partial("PagedViewModel")
+@section Scripts {
+    <script>
+        @Html.Raw(Model.RenderViewModelConfiguration<CycleDataSOEPointView>(ViewBag, "StartTime", IncidentID))
 
-</style>
-<script>
+        $(document).ready(function() {
+            $(window).scroll(function(e) {
+                var $el = $('#sticky');
+                var isPositionFixed = ($el.css('position') == 'fixed');
+                if ($(this).scrollTop() > 20 && !isPositionFixed) {
+                    $('#sticky').css({ 'position': 'fixed', 'top': '0px', 'width': '85%' });
+                }
+                if ($(this).scrollTop() < 20 && isPositionFixed) {
+                    $('#sticky').css({ 'position': 'static', 'top': '0px', 'width': '100%' });
+                }
+            });
 
-    $(document).ready(function () {
-        $(window).scroll(function(e) {
-            var $el = $('#sticky');
-            var isPositionFixed = ($el.css('position') == 'fixed');
-            if ($(this).scrollTop() > 20 && !isPositionFixed) {
-                $('#sticky').css({ 'position': 'fixed', 'top': '0px' , 'width': '85%'});
-            }
-            if ($(this).scrollTop() < 20 && isPositionFixed) {
-                $('#sticky').css({ 'position': 'static', 'top': '0px', 'width': '100%' });
-            }
+            (function($) {
+
+                $('#filterMn').keyup(function() {
+                    getValues();
+                })
+
+                $('#filterd').keyup(function() {
+                    getValues();
+                })
+
+                $('#filterIn').keyup(function() {
+                    getValues();
+                })
+            }(jQuery));
+
         });
 
-        (function ($) {
-
-            $('#filterMn').keyup(function () {
-                getValues();
-            })
-
-            $('#filterd').keyup(function () {
-                getValues();
-            })
-
-            $('#filterIn').keyup(function () {
-                getValues();
-            })
-        }(jQuery));
-
-    });
-
-    function getValues() {
-        var rexMn = new RegExp($('#filterMn').val(), 'i');
-        var rexd = new RegExp($('#filterd').val(), 'i');
-        var rexIn = new RegExp($('#filterIn').val(), 'i');
-        $('.searchable tr').hide();
-        $('.searchable tr').filter(function () {
-            //console.log($(this).children()[0].innerHTML);
-            return rexMn.test($(this).children()[1].innerHTML) && rexd.test($(this).children()[2].innerHTML) && rexIn.test($(this).children()[0].innerHTML);
-        }).show();
-    }
-    function HomePageViewModel() {
-        var self = this;
-        self.events = ko.observableArray(@Html.Raw(Json.Encode(ViewBag.SOEs)));
-    }
-
-    ko.applyBindings(new HomePageViewModel());
-
-    function dateFixer(date) {
-        var str = date.slice(6, date.length - 2);
-        var newDate = new Date(parseInt(str));
-        return newDate;
-    }
-
-    function getStatusImage(element, data) {
-        element.attr("src", "@statusImagePath" + data + ".png");
-        element.attr("title", data);
-    }
-
-    function getPointCodeImage(element, data) {
-        element.attr("src", "@pointCodeImagePath" + data + ".png");
-        element.attr("title", data);
-    }
-
-    var lastid, sum = 0;
-    function getSumISquaredT(record) {
-        if (record.IncidentID !== lastid) {
-            lastid = record.IncidentID;
-            sum = (record.Imax.toExponential(2) / 60.0);
-            return sum;
-        } else {
-            sum += (record.Imax.toExponential(2) / 60.0);
-            return sum;
+        function getValues() {
+            var rexMn = new RegExp($('#filterMn').val(), 'i');
+            var rexd = new RegExp($('#filterd').val(), 'i');
+            var rexIn = new RegExp($('#filterIn').val(), 'i');
+            $('.searchable tr').hide();
+            $('.searchable tr').filter(function() {
+                //console.log($(this).children()[0].innerHTML);
+                return rexMn.test($(this).children()[1].innerHTML) && rexd.test($(this).children()[2].innerHTML) && rexIn.test($(this).children()[0].innerHTML);
+            }).show();
         }
-           
-        
-    }
 
-    function openSEEModal(record) {
-        //console.log(record);
-        $("#openSeeFrame").attr({
-            "src": "@Url.Content("~/Main/OpenSee/")" + record.EventID,
-            "height": ($(window).height() - 250) + "px",
-            "width": "100%"
-    });
+        function HomePageViewModel() {
+            var self = this;
+            self.events = ko.observableArray(@Html.Raw(Json.Encode(ViewBag.SOEs)));
+        }
 
-        $("#openSeeDialog").modal("show");
-    }
+        ko.applyBindings(new HomePageViewModel());
 
-</script>
+        function dateFixer(date) {
+            var str = date.slice(6, date.length - 2);
+            var newDate = new Date(parseInt(str));
+            return newDate;
+        }
+
+        function getStatusImage(element, data) {
+            element.attr("src", "@statusImagePath" + data + ".png");
+            element.attr("title", data);
+        }
+
+        function getPointCodeImage(element, data) {
+            element.attr("src", "@pointCodeImagePath" + data + ".png");
+            element.attr("title", data);
+        }
+
+        var lastid, sum = 0;
+
+        function getSumISquaredT(record) {
+            if (record.IncidentID !== lastid) {
+                lastid = record.IncidentID;
+                sum = (record.Imax.toExponential(2) / 60.0);
+                return sum;
+            } else {
+                sum += (record.Imax.toExponential(2) / 60.0);
+                return sum;
+            }
+
+
+        }
+
+        function openSEEModal(record) {
+            //console.log(record);
+            $("#openSeeFrame").attr({
+                "src": "@Url.Content("~/Main/OpenSee/")" + record.EventID,
+                "height": ($(window).height() - 250) + "px",
+                "width": "100%"
+            });
+
+            $("#openSeeDialog").modal("show");
+        }
+
+    </script>
+}
