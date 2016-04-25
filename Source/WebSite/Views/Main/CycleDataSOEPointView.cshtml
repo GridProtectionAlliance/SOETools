@@ -173,13 +173,14 @@
 
         function openSEEModal(record) {
             //console.log(record);
-            $("#openSeeFrame").attr({
+            var myWindow = window.open("@Url.Content("~/Main/OpenSee/")" + record.EventID, "myWindow", "width=auto,height=auto");
+            @*$("#openSeeFrame").attr({
                 "src": "@Url.Content("~/Main/OpenSee/")" + record.EventID,
                 "height": ($(window).height() - 250) + "px",
                 "width": "100%"
             });
 
-            $("#openSeeDialog").modal("show");
+            $("#openSeeDialog").modal("show");*@
         }
 
     </script>

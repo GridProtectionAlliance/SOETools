@@ -36,9 +36,11 @@
         //    { "Field", "Label", "Classes" }
         new[] { "StartTime", "Date/Time", "text-center"},
         new[] { "Device", "Device", "text-center" },
+        new[] { null, "Fault Type", "text-center"},
         new[] { "PhaseA", "Phase A", "text-center"},
         new[] { "PhaseB", "Phase B", "text-center" },
         new[] { "PhaseC", "Phase C", "text-center"},
+        new[] { "Ground", "Ground", "text-center"},
         new[] { "Duration", "Duration", "text-center" },
         new[] { null, "SOE Data", "text-center"},
         new[] { null, " ", "text-center"}
@@ -66,10 +68,12 @@
 {
         <td width="15%" class="text-center valign-middle"><div data-bind="text: StartTime.formatDate(DateTimeFormat)"></div></td>
         <td width="15%" class="text-center valign-middle"><div data-bind="text: Device"></div></td>
-        <td width="15%" class="text-center valign-middle"><div data-bind="text: PhaseA.toFixed(0)"></div></td>
-        <td width="15%" class="text-center valign-middle"><div data-bind="text: PhaseB.toFixed(0)"></div></td>
-        <td width="15%" class="text-center valign-middle"><div data-bind="text: PhaseC.toFixed(0)"></div></td>
-        <td width="15%" class="text-center valign-middle"><div data-bind="text: Duration"></div></td>
+        <td width="10%" class="text-center valign-middle"><div data-bind=""></div></td>
+        <td width="10%" class="text-center valign-middle"><div data-bind="text: PhaseA.toFixed(0)"></div></td>
+        <td width="10%" class="text-center valign-middle"><div data-bind="text: PhaseB.toFixed(0)"></div></td>
+        <td width="10%" class="text-center valign-middle"><div data-bind="text: PhaseC.toFixed(0)"></div></td>
+        <td width="10%" class="text-center valign-middle"><div data-bind="text: Ground.toFixed(0)"></div></td>
+        <td width="10%" class="text-center valign-middle"><div data-bind="text: getDuration(Duration).toFixed(1)"></div></td>
         <td width="5%" class="text-left valign-middle" nowrap><button type="button" class="btn btn-danger" data-bind="click: openSOEModal.bind($data)">A</button></td>
         <td width="5%" class="text-left valign-middle" nowrap><button type="button" class="btn btn-danger" data-bind="">W</button></td>
 
@@ -86,6 +90,11 @@
     <script>
         @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag))
 
+
+        function getDuration(duration) {
+            return duration / 1000 * 60;
+        }
+
         function openSOEModal(record) {
             //console.log(record);
             $("#openSOEFrame").attr({
@@ -93,6 +102,7 @@
                 "height": ($(window).height() - 250) + "px",
                 "width": "100%"
         });
+
 
         $("#openSOEDialog").modal("show");
         }

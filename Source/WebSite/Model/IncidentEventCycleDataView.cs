@@ -23,6 +23,8 @@ namespace SOETools.Model
         [Label("Phase B")]
         public float PhaseB { get; set; }
 
+        public float Ground { get; set; }
+
         public float Duration { get; set; }
     }
 }
