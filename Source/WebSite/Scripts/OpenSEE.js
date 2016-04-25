@@ -44,6 +44,7 @@ var colorVCN = '#cc33cc';
 var colorIAN = '#3399cc';
 var colorIBN = '#cc9933';
 var colorICN = '#cc33cc';
+var colorIR = '#999999';
 
 var colorBrown = '#996633';
 var colorGray = '#333300';
@@ -331,7 +332,7 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
             series.ChannelName = series.ChannelName.replace("2", series.Phasing[1]);
             series.Phase = series.Phasing[1];
         }
-        else {
+        else if (series.ChannelName.includes(3)) {
             series.ChannelName = series.ChannelName.replace("3", series.Phasing[2]);
             series.Phase = series.Phasing[2];
         }
@@ -510,6 +511,9 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
                 series.flotSeries.color = colorICN;
             else
                 series.visible = false;
+            
+            if (series.Phase == "RES")
+                series.flotSeries.color = colorIR;
 
             series.checked = series.visible;
 
