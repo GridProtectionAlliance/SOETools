@@ -42,7 +42,7 @@
         new[] { "PhaseC", "Phase C", "text-center"},
         new[] { "Ground", "Ground", "text-center"},
         new[] { "Duration", "Duration", "text-center" },
-        new[] { null, "SOE Data", "text-center"},
+        new[] { null, "SOE Data", "text-center valign-middle"},
         new[] { null, " ", "text-center"}
 
     };
@@ -64,6 +64,8 @@
         </div>
     </div>
 </div>
+
+
 @helper BodyRows()
 {
         <td width="15%" class="text-center valign-middle"><div data-bind="text: StartTime.formatDate(DateTimeFormat)"></div></td>
@@ -90,6 +92,11 @@
     <script>
         @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag))
 
+        $(document).ready(function(){
+            $('input#livesearch').liveSearch({
+                    table : 'recordsTable' // table selector
+        });
+        });
 
         function getDuration(duration) {
             return duration / 1000 * 60;
