@@ -26,5 +26,7 @@ namespace SOETools.Model
         public float Ground { get; set; }
 
         public float Duration { get; set; }
+
+        public string FaultType { get; set; }
     }
 }
