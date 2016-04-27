@@ -47,11 +47,17 @@
         $(function() {
             $(window).on("hubConnected", function() {
                 var myWindow;
-                dataHub.queryIncidentEventCycleDataViewItems("StartTime").done(function(records) {
-                    $('#incidentTable').puidatatable({
+                var rowNum = Math.floor(($(document).height() - 100)/55);
+                dataHub.queryIncidentEventCycleDataViewCount().done(function (count) {   
+
+                $('#incidentTable').puidatatable({
+                        lazy: true,
                         paginator: {
-                          rows: 15  
-                        },
+                            rows: rowNum,
+                            totalRecords: count
+                            
+                         },
+
                         columns: [
                             { field: 'StartTime', bodyStyle: 'text-align: center', headerText: 'Date/Time', content: function (data) { return data.StartTime.formatDate(DateTimeFormat); } },
                             { field: 'Device', bodyStyle: 'text-align: center', headerText: 'Meter Name' },
@@ -65,7 +71,13 @@
                                 return '<button type="button" class="btn btn-danger" onclick="openSOEModal('+ data.ID + ')">A</button><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><button type="button" class="btn btn-danger" data-bind="">W</button>'
                             }}
                         ],
-                        datasource: records,
+                        datasource: function (callback, ui) {
+                            
+                            var $this = this;
+                            dataHub.queryIncidentEventCycleDataViewItems("StartTime", true, 1+ ui.first/rowNum, rowNum).done(function (records) {
+                                callback.call($this, records);
+                            });
+                        },
                         selectionMode: 'single',
                         rowSelect: function(event, data) {
                             @*myWindow = window.open("@Url.Content("~/Main/OpenSee/")" + data.EventID, "myWindow", "width=auto,height=auto");*@
@@ -74,8 +86,8 @@
                             //myWindow.close();
                         }
                     });
+               
                 });
-
             });
 
         });

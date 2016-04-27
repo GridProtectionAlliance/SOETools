@@ -293,9 +293,9 @@ namespace SOETools
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecords)]
-        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(string sortField)
+        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(string sortField, bool ascending, int page, int pageSize)
         {
-            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField);
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize);
         }
 
 
