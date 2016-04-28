@@ -94,7 +94,7 @@ namespace SOETools
                         "~/Content/fileinput.css"));
 
             bundles.Add(new StyleBundle("~/css.bundle/jqueryui").Include(
-                        "~/Content/themes/base/all.css"));
+                        $"~/Content/jquery-ui{min}.css"));
 
             bundles.Add(new StyleBundle("~/css.bundle/primeui").Include(
                         "~/Content/primeui-theme.css",
