@@ -141,7 +141,7 @@ namespace SOETools.Controllers
         public ActionResult CycleDataSOEPointView()
         {
             m_dbModel.ConfigureView<Model.CycleDataSOEPointView>(Url.RequestContext, "CycleDataSOEPointView", ViewBag);
-            ViewBag.UserSetting = "~/Images/UpDownState/Box Set/";
+            ViewBag.UserSetting = "~/Images/UpDownState/Box Set 2/";
             return View();
         }
 
