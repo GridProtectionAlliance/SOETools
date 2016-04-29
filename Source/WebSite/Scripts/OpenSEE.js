@@ -37,13 +37,13 @@ var zoom = false;
 var xaxisHover = 0;
 var phasorData = [];
 
-var colorVAN = '#3399cc';
-var colorVBN = '#cc9933';
-var colorVCN = '#cc33cc';
+var colorVAN = '#A30000';
+var colorVBN = '#0029A3';
+var colorVCN = '#007A29';
 
-var colorIAN = '#3399cc';
-var colorIBN = '#cc9933';
-var colorICN = '#cc33cc';
+var colorIAN = '#FF0000';
+var colorIBN = '#0066CC';
+var colorICN = '#33CC33';
 var colorIR = '#999999';
 
 var colorBrown = '#996633';
@@ -51,15 +51,6 @@ var colorGray = '#333300';
 var colorPurple = '#9900FF';
 var colorAqua = '#66CCFF';
 var colorTan = '#CC9900';
-
-
-//var oldcolorVAN = '#A30000';
-//var oldcolorVBN = '#0029A3';
-//var oldcolorVCN = '#007A29';
-  
-//var oldcolorIAN = '#FF0000';
-//var oldcolorIBN = '#0066CC';
-//var oldcolorICN = '#33CC33';
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
