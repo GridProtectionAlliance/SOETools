@@ -141,7 +141,13 @@ namespace SOETools.Controllers
         public ActionResult CycleDataSOEPointView()
         {
             m_dbModel.ConfigureView<Model.CycleDataSOEPointView>(Url.RequestContext, "CycleDataSOEPointView", ViewBag);
-            ViewBag.UserSetting = "~/Images/UpDownState/Box Set 2/";
+
+            ViewBag.VoltageStatePath = "~/Images/UpDownState/Box Set 2/";
+            ViewBag.BreakerElementPath = "~/Images/PointCode/BreakerElement/";
+            ViewBag.StatusElementPath = "~/Images/PointCode/StatusElement/";
+            ViewBag.SimpleVoltageStatePath = "~/Images/UpDownState/Summary Set/";
+            ViewBag.SimpleBreakerStatusPath = "~/Images/PointCode/Summary/";
+
             return View();
         }
 

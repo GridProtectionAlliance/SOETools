@@ -16,7 +16,10 @@ namespace SOETools.Model
         public DateTime Timestamp { get; set; }
         public float Vmin { get; set; }
         public float Imax { get; set; }
-        public string PointCode { get; set; }
+        public string StatusElement { get; set; }
+        public string BreakerElementA { get; set; }
+        public string BreakerElementB { get; set; }
+        public string BreakerElementC { get; set; }
         public string UpState { get; set; }
         public string DownState { get; set; }
         public string Phasing { get; set; }

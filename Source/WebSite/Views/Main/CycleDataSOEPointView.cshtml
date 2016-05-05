@@ -30,45 +30,119 @@
     DataContext dataContext = Model.DbDataContext;
     NameValueCollection parameters = Request.QueryString;
     int IncidentID = int.Parse(parameters["IncidentID"] ?? "0");
-    string statusImagePath = Model.GetPageSetting(ViewBag, "statusImagePath", ViewBag.UserSetting);
-    statusImagePath = Url.Content(statusImagePath).EnsureEnd('/');
-    string pointCodeImagePath = Model.GetPageSetting(ViewBag, "pointCodeImagePath", "~/Images/PointCode/");
-    pointCodeImagePath = Url.Content(pointCodeImagePath).EnsureEnd('/');
+
+    string voltageStatePath = Model.GetPageSetting(ViewBag, "voltageStatePath", ViewBag.VoltageStatePath);
+    voltageStatePath = Url.Content(voltageStatePath).EnsureEnd('/');
+    string breakerElementPath = Model.GetPageSetting(ViewBag, "breakerElementPath", ViewBag.BreakerElementPath);
+    breakerElementPath = Url.Content(breakerElementPath).EnsureEnd('/');
+    string statusElementPath = Model.GetPageSetting(ViewBag, "statusElementPath", ViewBag.StatusElementPath);
+    statusElementPath = Url.Content(statusElementPath).EnsureEnd('/');
+    string simpleVoltageStatePath = Model.GetPageSetting(ViewBag, "simpleVoltageStatePath", ViewBag.SimpleVoltageStatePath);
+    simpleVoltageStatePath = Url.Content(simpleVoltageStatePath).EnsureEnd('/');
+    string simpleBreakerStatusPath = Model.GetPageSetting(ViewBag, "simpleBreakerStatePath", ViewBag.SimpleBreakerStatusPath);
+    simpleBreakerStatusPath = Url.Content(simpleBreakerStatusPath).EnsureEnd('/');
 }
+
+<div style="margin: 5px; text-align: right; cursor: default">
+    <label style="font-weight: normal" for="simpleCheckbox">Simple Icons</label>
+    <input id="simpleCheckbox" type="checkbox" onchange="reload();"/>
+</div>
 
 <div id="soepointTable"></div>
 
 @section Scripts {
-
     <script type="text/javascript">
         $(function() {
             $(window).on("hubConnected", function() {
-                var myWindow;
                 dataHub.queryCycleDataSOEPointViewItems(@IncidentID, "StartTime", true, 1, 100).done(function(records) {
+                    var checkbox = $('#simpleCheckbox');
+
                     $('#soepointTable').puidatatable({
                         columns: [
                             { field: 'Name', bodyStyle: 'text-align: center', headerText: 'Meter Name' },
                             { field: 'Timestamp', bodyStyle: 'text-align: center', headerText: 'Data/Time', content: function(data) { return data.Timestamp.formatDate(DateTimeFormat); } },
                             { field: 'Phasing', bodyStyle: 'text-align: center', headerText: 'Phasing' },
-                            { field: 'Upstate', bodyStyle: 'text-align: center', headerText: 'Upstate', content: function(data) { return '<img src="@statusImagePath' + data.UpState + '.png" />'; } },
-                            { field: 'PointCode', bodyStyle: 'text-align: center', headerText: 'Device State', content: function(data) { return '<img src="@pointCodeImagePath' + data.PointCode + '.png" />'; } },
-                            { field: 'DownState', bodyStyle: 'text-align: center', headerText: 'Downstate', content: function(data) { return '<img src="@statusImagePath' + data.DownState + '.png" />'; } },
+                            { field: 'Upstate', bodyStyle: 'text-align: center', headerText: 'Upstate', content: function(data) { return checkbox.is(':checked') ? renderSimpleVoltageState(data.UpState) : renderVoltageState(data.UpState); } },
+                            { field: 'PointCode', bodyStyle: 'text-align: center', headerText: 'Device State', content: function(data) { return checkbox.is(':checked') ? renderSimpleBreakerStatus(data) : renderBreakerStatus(data); } },
+                            { field: 'DownState', bodyStyle: 'text-align: center', headerText: 'Downstate', content: function(data) { return checkbox.is(':checked') ? renderSimpleVoltageState(data.DownState) : renderVoltageState(data.DownState); } },
                             { field: 'Imax', bodyStyle: 'text-align: center', headerText: 'Imax', content: function(data) { return data.Imax.toFixed(0); } },
                             { field: 'Vmin', bodyStyle: 'text-align: center', headerText: 'Vmin', content: function(data) { return data.Vmin.toFixed(0); } }
                         ],
                         datasource: records,
                         selectionMode: 'single',
                         rowSelect: function(event, data) {
-                           myWindow = window.open("@Url.Content("~/Main/OpenSee/")" + data.EventID, "myWindow", "width=auto,height=auto");
-                        },
-                        rowUnselect: function(event, data) {
-                            myWindow.close();
+                            window.open("@Url.Content("~/Main/OpenSee/")" + data.EventID, "myWindow", "width=auto,height=auto");
                         }
                     });
                 });
-
             });
-
         });
+
+        function toggleCheckbox() {
+            var checkbox = $('#simpleCheckbox');
+            checkbox.prop('checked', !checkbox.is(':checked'));
+            reload();
+        }
+
+        function reload() {
+            if (!hubIsConnected)
+                return;
+
+            $('#soepointTable').puidatatable('reload');
+        }
+
+        function renderVoltageState(state) {
+            return '<img src="@voltageStatePath' + state + '.png" />';
+        }
+
+        function renderSimpleVoltageState(state) {
+            var simpleState;
+
+            if (state.includes('0'))
+                simpleState = '3';
+            else if (state.includes('2'))
+                simpleState = '1';
+            else if (state.includes('3'))
+                simpleState = '2';
+            else
+                simpleState = '0';
+
+            return '<img src="@simpleVoltageStatePath' + simpleState + '.png" />';
+        }
+
+        function renderBreakerStatus(data) {
+            var breakerStatus = '';
+
+            breakerStatus += '<img style="display: inline" src="@breakerElementPath' + 'A' + data.BreakerElementA + '.png" />';
+            breakerStatus += '<img style="display: inline" src="@breakerElementPath' + 'C' + data.BreakerElementC + '.png" />';
+            breakerStatus += '<img style="display: inline" src="@breakerElementPath' + 'B' + data.BreakerElementB + '.png" />';
+            breakerStatus += '<br/>';
+            breakerStatus += '<img style="display: inline" src="@statusElementPath' + data.StatusElement + '.png" />';
+
+            return breakerStatus;
+        }
+
+        function renderSimpleBreakerStatus(data) {
+            var summaryState;
+            var simpleState;
+            
+            summaryState =
+                data.BreakerElementA +
+                data.BreakerElementC +
+                data.BreakerElementB;
+            
+            if (summaryState.includes('5'))
+                simpleState = '5';
+            else if (data.StatusElement.startsWith('3'))
+                simpleState = '4'
+            else if (summaryState.includes('4'))
+                simpleState = '2';
+            else if (summaryState.includes('1'))
+                simpleState = '1'
+            else
+                simpleState = '3';
+
+            return '<img src="@simpleBreakerStatusPath' + simpleState + '.png" />';
+        }
     </script>
 }
