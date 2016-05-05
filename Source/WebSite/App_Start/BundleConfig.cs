@@ -76,15 +76,15 @@ namespace SOETools
                         "~/Scripts/gsf.web.primeui.js"));
 
             bundles.Add(new ScriptBundle("~/js.bundle/site").Include(
-                        "~/Scripts/Site.js"));
+                        "~/Scripts/Site.js",
+                        "~/Scripts/js.cookie.js"));
 
             bundles.Add(new ScriptBundle("~/js.bundle/knockout").Include(
                         "~/Scripts/knockout-3.4.0.js",
                         "~/Scripts/knockout.mapping-latest.js",
                         $"~/Scripts/knockout.validation{min}.js",
                         $"~/Scripts/ko-reactor{min}.js",
-                        "~/Scripts/ko.observableDictionary.js",
-                        "~/Scripts/js.cookie.js"));
+                        "~/Scripts/ko.observableDictionary.js"));
 
             bundles.Add(new StyleBundle("~/css.bundle/bootstrap").Include(
                         $"~/Content/bootstrap-datepicker3{min}.css",

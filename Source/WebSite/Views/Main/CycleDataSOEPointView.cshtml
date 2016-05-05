@@ -53,10 +53,14 @@
 @section Scripts {
     <script type="text/javascript">
         $(function() {
+            var checkbox = $('#simpleCheckbox');
+            var simpleIsChecked = (Cookies.get('SimpleIsChecked') === 'true');
+            
+            if (simpleIsChecked !== undefined)
+                checkbox.prop('checked', simpleIsChecked);
+
             $(window).on("hubConnected", function() {
                 dataHub.queryCycleDataSOEPointViewItems(@IncidentID, "StartTime", true, 1, 100).done(function(records) {
-                    var checkbox = $('#simpleCheckbox');
-
                     $('#soepointTable').puidatatable({
                         columns: [
                             { field: 'Name', bodyStyle: 'text-align: center', headerText: 'Meter Name' },
@@ -87,7 +91,8 @@
         function reload() {
             if (!hubIsConnected)
                 return;
-
+            
+            Cookies.set('SimpleIsChecked', $('#simpleCheckbox').is(':checked'), { expires: 365 });
             $('#soepointTable').puidatatable('reload');
         }
 
