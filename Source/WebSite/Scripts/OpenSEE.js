@@ -52,7 +52,6 @@ var colorPurple = '#9900FF';
 var colorAqua = '#66CCFF';
 var colorTan = '#CC9900';
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 (function ($) {
@@ -315,15 +314,15 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
         if (include)
             seriesIndexes.push(key);
 
-        if (series.ChannelName.includes(1)) {
+        if (series.ChannelName.indexOf(1) >= 0) {
             series.ChannelName = series.ChannelName.replace("1", series.Phasing[0]);
             series.Phase = series.Phasing[0];
         }
-        else if (series.ChannelName.includes(2)) {
+        else if (series.ChannelName.indexOf(2) >= 0) {
             series.ChannelName = series.ChannelName.replace("2", series.Phasing[1]);
             series.Phase = series.Phasing[1];
         }
-        else if (series.ChannelName.includes(3)) {
+        else if (series.ChannelName.indexOf(3) >= 0) {
             series.ChannelName = series.ChannelName.replace("3", series.Phasing[2]);
             series.Phase = series.Phasing[2];
         }
@@ -386,8 +385,7 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
             grid: {
                 autoHighlight: false,
                 clickable: true,
-                hoverable: true,
-                markings: markings
+                hoverable: true
             },
             xaxis: {
                 mode: "time",
@@ -439,8 +437,6 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
 
             if (!series.DataPoints)
                 return;
-
-            
 
             series.visible =
                 series.MeasurementCharacteristic != "RMS" &&
@@ -698,6 +694,32 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
         // Update the data in the plot to
         // display data for the first time
         updatePlotData();
+
+        // Assign function to window to
+        // update the markings on the plots
+        window.UpdateMarkings = function () {
+            if (!window.opener || !window.opener.Highlight)
+                return;
+
+            console.log(window.opener.Highlight);
+
+            $.each(plots, function (key, plot) {
+                plot.getOptions().grid.markings = [
+                    {
+                        color: "#FFA",
+                        xaxis: {
+                            from: window.opener.Highlight,
+                            to: window.opener.Highlight + 17
+                        }
+                    }
+                ];
+
+                plot.draw();
+            });
+        };
+        
+        // Update markings on plots
+        window.UpdateMarkings();
 
         // Align all plot axes
         alignAxes();

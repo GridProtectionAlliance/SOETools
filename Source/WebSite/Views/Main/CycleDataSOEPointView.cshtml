@@ -53,6 +53,7 @@
 @section Scripts {
     <script type="text/javascript">
         $(function() {
+            var childWindow;
             var checkbox = $('#simpleCheckbox');
             var simpleIsChecked = (Cookies.get('SimpleIsChecked') === 'true');
             
@@ -75,7 +76,15 @@
                         datasource: records,
                         selectionMode: 'single',
                         rowSelect: function(event, data) {
-                            window.open("@Url.Content("~/Main/OpenSee/")" + data.EventID, "myWindow", "width=auto,height=auto");
+                            window.Highlight = Date.parse(data.Timestamp);
+
+                            if (!childWindow || window.EventID !== data.EventID) {
+                                window.EventID = data.EventID;
+                                childWindow = window.open("@Url.Content("~/Main/OpenSEE/")" + data.EventID, "SOEChildWindow", "width=auto,height=auto");
+                            }
+
+                            if (childWindow.UpdateMarkings)
+                                childWindow.UpdateMarkings();
                         }
                     });
                 });
@@ -103,11 +112,11 @@
         function renderSimpleVoltageState(state) {
             var simpleState;
 
-            if (state.includes('0'))
+            if (state.indexOf('0') >= 0)
                 simpleState = '3';
-            else if (state.includes('2'))
+            else if (state.indexOf('2') >= 0)
                 simpleState = '1';
-            else if (state.includes('3'))
+            else if (state.indexOf('3') >= 0)
                 simpleState = '2';
             else
                 simpleState = '0';
@@ -136,13 +145,13 @@
                 data.BreakerElementC +
                 data.BreakerElementB;
             
-            if (summaryState.includes('5'))
+            if (summaryState.indexOf('5') >= 0)
                 simpleState = '5';
             else if (data.StatusElement.startsWith('3'))
                 simpleState = '4'
-            else if (summaryState.includes('4'))
+            else if (summaryState.indexOf('4') >= 0)
                 simpleState = '2';
-            else if (summaryState.includes('1'))
+            else if (summaryState.indexOf('1') >= 0)
                 simpleState = '1'
             else
                 simpleState = '3';

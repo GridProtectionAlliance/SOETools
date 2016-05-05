@@ -159,6 +159,7 @@ namespace SOETools.Controllers
 
         public ActionResult OpenSEE()
         {
+            string soeHighlight = Request.QueryString["SOEHighlight"] ?? "-1";
             string eventID = Url.RequestContext.RouteData.Values["id"] as string ?? "-1";
             EventInfo eventInfo = m_dbContext.Table<EventInfo>().QueryRecords(restriction: new RecordRestriction("EventID = {0}", eventID)).FirstOrDefault();
 
@@ -195,21 +196,6 @@ namespace SOETools.Controllers
 
                 ViewBag.EventInfo = eventInfo;
                 ViewBag.Channels = m_dbContext.Table<ChannelInfo>().QueryRecords(restriction: new RecordRestriction("MeterID = {0}", eventInfo.MeterID));
-
-                ViewBag.Markings = m_dbContext
-                    .Table<CycleDataSOEPointView>()
-                    .QueryRecords(restriction: new RecordRestriction("IncidentID = {0}", eventInfo.IncidentID))
-                    .Select(soePoint => soePoint.Timestamp.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds)
-                    .Select(milliseconds => new
-                    {
-                        color = "#000",
-                        lineWidth = 1,
-                        xaxis = new
-                        {
-                            from = milliseconds,
-                            to = milliseconds
-                        }
-                    });
             }
 
             m_dbModel.ConfigureView(Url.RequestContext, "OpenSEE", ViewBag);
