@@ -963,6 +963,7 @@
     <None Include="Properties\PublishProfiles\Deploy to Package File.pubxml" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\CycleDataSOEPointView.js" />
     <Content Include="Scripts\fileinput.js" />
     <Content Include="Scripts\fileinput.min.js" />
     <Content Include="Scripts\flot\examples\ajax\index.html" />
