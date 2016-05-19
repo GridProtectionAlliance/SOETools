@@ -23,12 +23,75 @@
 @using System.Collections.Specialized
 @using GSF
 @using GSF.Data.Model
+@using GSF.Web
 @using GSF.Web.Model
 @using SOETools.Model
 @model SOETools.Model.AppModel
 @{
     DataContext dataContext = Model.DbDataContext;
+    NameValueCollection parameters = Request.QueryString;
+    int dateRange = int.Parse(parameters["DateRange"] ?? "-1");
+
+
+    ViewBag.CustomTitle = "Incidents";
+    ViewBag.AddNewEditTitle = "";
+    ViewBag.HeaderColumns = new[]
+{   //    { "Field", "Label", "Classes" }
+        new[] { "StartTime", "Date/Time", "text-center" },
+        new[] { "Device", "Meter Name", "text-center" },
+        new[] { null, "Fault Type", "text-center valign-middle"},
+        new[] { null, "Phase A", "text-center valign-middle" },
+        new[] { null, "Phase B", "text-center valign-middle" },
+        new[] { null, "Phase c", "text-center valign-middle" },
+        new[] { null, "Ground", "text-center valign-middle" },
+        new[] { null, "Duration", "text-center valign-middle" },
+        new[] { null, "SOE Data", "text-center valign-middle" },
+    };
+
+    ViewBag.BodyRows = BodyRows().ToString();
+    ViewBag.AddNewEditDialog = AddNewEditDialog().ToString();
+    ViewBag.HideAddNewButton = true;
+    ViewBag.CanEdit = false;
+    ViewBag.HideUnauthorizedControls = true;
 }
+
+@helper MeterFilter()
+{
+    <div class='row'>
+        <div class='col-md-12'>
+            <div class='form-group'>
+                <label for='meterfilter'>Meter Name Filter:</label>
+                <div class='right-inner-addon'>
+                    <i class='glyphicon glyphicon-search'></i>
+                    <input class='form-control' type='search' id='meterfilter' placeholder='Search' />
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+
+@helper BodyRows()
+{
+    <td width="11%" class="text-center valign-middle" data-bind="text: StartTime.formatDate(DateTimeFormat)"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: Device"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: FaultType"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: PhaseA.toFixed(0)"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: PhaseB.toFixed(0)"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: PhaseC.toFixed(0)"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: Ground.toFixed(0)"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: (Duration/1000*60).toFixed(1)"></td>
+    <td width="11%" class="text-center valign-middle" nowrap><button type="button" class="btn btn-danger" data-bind="click: openSOEModal.bind($data)">A</button><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><button type="button" class="btn btn-danger" data-bind="">W</button></td>
+}
+
+@helper AddNewEditDialog()
+{
+    <div class="col-md-12">
+        <input id="uploadFiles" name="uploadFiles[]" type="file" multiple class="file-loading">
+    </div>
+}
+@Html.Partial("PagedViewModel")
 <div id="incidentTable"></div>
 
 <div id="openSOEDialog" class="modal modal-wide fade" role="dialog">
@@ -43,58 +106,28 @@
 </div>
 @section Scripts {
     <script>
+        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag))
 
-        $(function() {
-            $(window).on("hubConnected", function() {
-                var myWindow;
-                var rowNum = Math.floor(($(document).height() - 100)/55);
-                dataHub.queryIncidentEventCycleDataViewCount().done(function (count) {   
+        $(function () {
+            $("#openSOEDialog").modal({ show: false, backdrop: "static", keyboard: false });
+            
+            $("#pageHeader").append("@Html.Raw(MeterFilter().ToString().RemoveDuplicateWhiteSpace().Replace("\r\n", ""))");
+            $('#meterfilter').on('keyup', function (e) {
+                if ($('#meterfilter').val().length == 0) {
+                    viewModel.filterText = '%';
+                    viewModel.queryPageRecords();
+                } else {
+                    viewModel.filterText = $('#meterfilter').val();
+                    viewModel.queryPageRecords();
 
-                $('#incidentTable').puidatatable({
-                        lazy: true,
-                        paginator: {
-                            rows: rowNum,
-                            totalRecords: count
-                            
-                         },
+                }
 
-                        columns: [
-                            { field: 'StartTime', bodyStyle: 'text-align: center', headerText: 'Date/Time', content: function (data) { return data.StartTime.formatDate(DateTimeFormat); } },
-                            { field: 'Device', bodyStyle: 'text-align: center', headerText: 'Meter Name' },
-                            { field: 'FaultType', bodyStyle: 'text-align: center', headerText: 'Fault Type' },
-                            { field: 'PhaseA', bodyStyle: 'text-align: center', headerText: 'Phase A', content: function(data) { return data.PhaseA.toFixed(0); } },
-                            { field: 'PhaseB', bodyStyle: 'text-align: center', headerText: 'Phase B', content: function(data) { return data.PhaseB.toFixed(0); } },
-                            { field: 'PhaseC', bodyStyle: 'text-align: center', headerText: 'Phase C', content: function(data) { return data.PhaseC.toFixed(0); } },
-                            { field: 'Ground', bodyStyle: 'text-align: center', headerText: 'Ground', content: function(data) { return data.Ground.toFixed(0); } },
-                            { field: 'Duration', bodyStyle: 'text-align: center', headerText: 'Duration', content: function (data) { return (data.Duration/1000*60).toFixed(1); } },
-                            { headerText: 'SOE Data', bodyStyle: 'text-align: center', content: function(data) {
-                                return '<button type="button" class="btn btn-danger" onclick="openSOEModal('+ data.ID + ')">A</button><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><button type="button" class="btn btn-danger" data-bind="">W</button>'
-                            }}
-                        ],
-                        datasource: function (callback, ui) {
-                            
-                            var $this = this;
-                            dataHub.queryIncidentEventCycleDataViewItems("StartTime", true, 1+ ui.first/rowNum, rowNum).done(function (records) {
-                                callback.call($this, records);
-                            });
-                        },
-                        selectionMode: 'single',
-                        rowSelect: function(event, data) {
-                            @*myWindow = window.open("@Url.Content("~/Main/OpenSee/")" + data.EventID, "myWindow", "width=auto,height=auto");*@
-                        },
-                        rowUnselect: function(event, data) {
-                            //myWindow.close();
-                        }
-                    });
-               
-                });
             });
-
         });
-      
+
         function openSOEModal(record) {
             $("#openSOEFrame").attr({
-                "src": "@Url.Content("~/Main/CycleDataSOEPointView/?IncidentID=")" + record,
+                "src": "@Url.Content("~/Main/CycleDataSOEPointView/?IncidentID=")" + record.ID.toString(),
                 "height": ($(window).height() - 250) + "px",
                 "width": "100%"
         });

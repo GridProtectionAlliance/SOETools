@@ -33,7 +33,7 @@ namespace SOETools
         public void Configuration(IAppBuilder app)
         {
             // Load security hub in application domain before establishing SignalR hub configuration
-            GlobalHost.DependencyResolver.Register(typeof(SecurityHub), () => new SecurityHub(new DataContext("securityProvider", MvcApplication.LogException)));
+            GlobalHost.DependencyResolver.Register(typeof(SecurityHub), () => new SecurityHub(new DataContext("securityProvider", exceptionHandler: MvcApplication.LogException)));
 
             HubConfiguration hubConfig = new HubConfiguration();
 #if DEBUG

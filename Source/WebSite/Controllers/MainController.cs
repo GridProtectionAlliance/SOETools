@@ -58,7 +58,7 @@ namespace SOETools.Controllers
         {
             // Establish data context for the view
             m_dataContext = new DataContext(exceptionHandler: MvcApplication.LogException);
-            m_dbContext = new DataContext("thirdDb", MvcApplication.LogException);
+            m_dbContext = new DataContext("thirdDb", exceptionHandler: MvcApplication.LogException);
             ViewData.Add("DataContext", m_dataContext);
             ViewData.Add("DbContext", m_dbContext);
 
@@ -99,7 +99,11 @@ namespace SOETools.Controllers
 
         public ActionResult Home()
         {
-            m_appModel.ConfigureView(Url.RequestContext, "Home", ViewBag);            
+            m_appModel.ConfigureView(Url.RequestContext, "Home", ViewBag);
+            ViewBag.SOES7D = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("DATEDIFF(day, StartTime, GETDATE()) <= 7"));
+            ViewBag.SOES90D = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("DATEDIFF(day, StartTime, GETDATE()) <= 60"));
+            ViewBag.SOESAD = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount();
+
             return View();
         }
 

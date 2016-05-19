@@ -97,7 +97,7 @@ namespace SOETools.Model
         {
             get
             {
-                return m_securityDataContext ?? (m_securityDataContext = new DataContext("securityProvider", MvcApplication.LogException));
+                return m_securityDataContext ?? (m_securityDataContext = new DataContext("securityProvider", exceptionHandler: MvcApplication.LogException));
             }
         }
 
@@ -108,7 +108,7 @@ namespace SOETools.Model
         {
             get
             {
-                return m_dbDataContext ?? (m_dbDataContext = new DataContext("thirdDb", MvcApplication.LogException));
+                return m_dbDataContext ?? (m_dbDataContext = new DataContext("thirdDb", exceptionHandler: MvcApplication.LogException));
             }
         }
 

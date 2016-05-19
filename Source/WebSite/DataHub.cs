@@ -59,7 +59,7 @@ namespace SOETools
         public DataHub()
         {
             m_dataContext = new DataContext(exceptionHandler: MvcApplication.LogException);
-            m_coreContext = new DataContext("securityProvider", MvcApplication.LogException);
+            m_coreContext = new DataContext("securityProvider",exceptionHandler: MvcApplication.LogException);
             m_dbContext = new DataContext("thirdDb", exceptionHandler: MvcApplication.LogException);
         }
 
@@ -266,7 +266,7 @@ namespace SOETools
         [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.QueryRecordCount)]
         public int QueryCycleDataSOEPointViewCount(int parentID)
         {
-            return m_dbContext.Table<CycleDataSOEPointView>().QueryRecordCount(restriction: new RecordRestriction("IncidentID = {0}", parentID));
+            return m_dbContext.Table<CycleDataSOEPointView>().QueryRecordCount(new RecordRestriction("IncidentID = {0}", parentID));
         }
 
         [AuthorizeHubRole("Administrator")]
@@ -286,16 +286,29 @@ namespace SOETools
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecordCount)]
-        public int QueryIncidentEventCycleDataViewCount()
+        public int QueryIncidentEventCycleDataViewCount(string filterText)
         {
-            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount();
+            if (filterText == null) filterText = "%";
+            else
+            {
+                // Build your filter string here!
+                filterText += "%";
+            }
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("Device LIKE {0}", filterText));
+
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecords)]
-        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(string sortField, bool ascending, int page, int pageSize)
+        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(string sortField, bool ascending, int page, int pageSize, string filterText)
         {
-            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize);
+            if (filterText == null) filterText = "%";
+            else
+            {
+                // Build your filter string here!
+                filterText += "%";
+            }
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("Device LIKE {0}", filterText));
         }
 
 
@@ -308,14 +321,14 @@ namespace SOETools
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Page), RecordOperation.QueryRecordCount)]
-        public int QueryPageCount()
+        public int QueryPageCount(string filterText)
         {
             return m_coreContext.Table<Page>().QueryRecordCount();
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Page), RecordOperation.QueryRecords)]
-        public IEnumerable<Page> QueryPages(string sortField, bool ascending, int page, int pageSize)
+        public IEnumerable<Page> QueryPages(string sortField, bool ascending, int page, int pageSize, string filterText)
         {
             return m_coreContext.Table<Page>().QueryRecords(sortField, ascending, page, pageSize);
         }
@@ -355,14 +368,14 @@ namespace SOETools
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Menu), RecordOperation.QueryRecordCount)]
-        public int QueryMenuCount()
+        public int QueryMenuCount(string filterText)
         {
             return m_coreContext.Table<Menu>().QueryRecordCount();
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(Menu), RecordOperation.QueryRecords)]
-        public IEnumerable<Menu> QueryMenus(string sortField, bool ascending, int page, int pageSize)
+        public IEnumerable<Menu> QueryMenus(string sortField, bool ascending, int page, int pageSize, string filterText)
         {
             return m_coreContext.Table<Menu>().QueryRecords(sortField, ascending, page, pageSize);
         }
@@ -402,14 +415,14 @@ namespace SOETools
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(MenuItem), RecordOperation.QueryRecordCount)]
-        public int QueryMenuItemCount(int parentID)
+        public int QueryMenuItemCount(int parentID, string filterText)
         {
             return m_coreContext.Table<MenuItem>().QueryRecordCount(new RecordRestriction("MenuID = {0}", parentID));
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(MenuItem), RecordOperation.QueryRecords)]
-        public IEnumerable<MenuItem> QueryMenuItems(int parentID, string sortField, bool ascending, int page, int pageSize)
+        public IEnumerable<MenuItem> QueryMenuItems(int parentID, string sortField, bool ascending, int page, int pageSize, string filterText)
         {
             return m_coreContext.Table<MenuItem>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("MenuID = {0}", parentID));
         }
@@ -456,14 +469,14 @@ namespace SOETools
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(ValueListGroup), RecordOperation.QueryRecordCount)]
-        public int QueryValueListGroupCount()
+        public int QueryValueListGroupCount(string filterText)
         {
             return m_dataContext.Table<ValueListGroup>().QueryRecordCount();
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(ValueListGroup), RecordOperation.QueryRecords)]
-        public IEnumerable<ValueListGroup> QueryValueListGroups(string sortField, bool ascending, int page, int pageSize)
+        public IEnumerable<ValueListGroup> QueryValueListGroups(string sortField, bool ascending, int page, int pageSize, string filterText)
         {
             return m_dataContext.Table<ValueListGroup>().QueryRecords(sortField, ascending, page, pageSize);
         }
@@ -504,14 +517,14 @@ namespace SOETools
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(ValueList), RecordOperation.QueryRecordCount)]
-        public int QueryValueListCount(int parentID)
+        public int QueryValueListCount(int parentID, string filterText)
         {
             return m_dataContext.Table<ValueList>().QueryRecordCount(new RecordRestriction("GroupID = {0}", parentID));
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(ValueList), RecordOperation.QueryRecords)]
-        public IEnumerable<ValueList> QueryValueListItems(int parentID, string sortField, bool ascending, int page, int pageSize)
+        public IEnumerable<ValueList> QueryValueListItems(int parentID, string sortField, bool ascending, int page, int pageSize, string filterText)
         {
             return m_dataContext.Table<ValueList>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("GroupID = {0}", parentID));
         }

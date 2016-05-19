@@ -93,7 +93,7 @@ namespace SOETools
             global.PasswordRequirementsError = securityProvider["PasswordRequirementsError"].Value;
 
             // Load database driven model settings
-            using (DataContext dataContext = new DataContext("securityProvider", LogException))
+            using (DataContext dataContext = new DataContext("securityProvider",exceptionHandler: LogException))
             {
                 // Validate default security roles exist
                 ValidateSecurityRoles(dataContext.Connection, systemSettings["DefaultSecurityRoles"].Value);
