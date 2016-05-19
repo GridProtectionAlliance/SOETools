@@ -106,7 +106,7 @@
 </div>
 @section Scripts {
     <script>
-        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag))
+        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag, "StartTime", dateRange))
 
         $(function () {
             $("#openSOEDialog").modal({ show: false, backdrop: "static", keyboard: false });

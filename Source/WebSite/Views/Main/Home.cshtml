@@ -48,9 +48,9 @@
 
         <tr>
             <td>SOE Total</td>
-            <td align="right">@ViewBag.SOES7D</td>
-            <td align="right">@ViewBag.SOES90D</td>
-            <td align="right">@ViewBag.SOESAD</td>
+            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=7")">@ViewBag.SOES7D</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=60")">@ViewBag.SOES90D</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1")">@ViewBag.SOESAD</a></td>
         </tr>
     </table>
 

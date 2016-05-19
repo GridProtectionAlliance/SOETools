@@ -286,7 +286,7 @@ namespace SOETools
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecordCount)]
-        public int QueryIncidentEventCycleDataViewCount(string filterText)
+        public int QueryIncidentEventCycleDataViewCount(int parentID, string filterText)
         {
             if (filterText == null) filterText = "%";
             else
@@ -294,13 +294,16 @@ namespace SOETools
                 // Build your filter string here!
                 filterText += "%";
             }
-            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("Device LIKE {0}", filterText));
+            if(parentID == -1)
+                return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("Device LIKE {0}", filterText));
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("Device LIKE {0} AND DATEDIFF(day, StartTime, GETDATE()) <= {1}", filterText, parentID));
+
 
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecords)]
-        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(string sortField, bool ascending, int page, int pageSize, string filterText)
+        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(int parentID, string sortField, bool ascending, int page, int pageSize, string filterText)
         {
             if (filterText == null) filterText = "%";
             else
@@ -308,7 +311,10 @@ namespace SOETools
                 // Build your filter string here!
                 filterText += "%";
             }
-            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("Device LIKE {0}", filterText));
+            if (parentID == -1)
+                return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("Device LIKE {0}", filterText));
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("Device LIKE {0} AND DATEDIFF(day, StartTime, GETDATE()) <= {1}", filterText, parentID));
+
         }
 
 
