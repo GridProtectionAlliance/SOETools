@@ -698,8 +698,12 @@ function populateDivWithLineChartByInstanceID(theeventinstance) {
         // Assign function to window to
         // update the markings on the plots
         window.UpdateMarkings = function () {
-            if (!window.opener || !window.opener.Highlight)
+            try {
+                if (!window.opener || !window.opener.Highlight)
+                    return;
+            } catch (err) {
                 return;
+            }
 
             console.log(window.opener.Highlight);
 
