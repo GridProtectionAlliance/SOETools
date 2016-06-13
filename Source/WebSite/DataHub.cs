@@ -262,14 +262,14 @@ namespace SOETools
         #region [ CycleDataSOEPointView Table Operations ]
 
 
-        [AuthorizeHubRole("Administrator")]
+
         [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.QueryRecordCount)]
         public int QueryCycleDataSOEPointViewCount(int parentID, string filterText)
         {
             return m_dbContext.Table<CycleDataSOEPointView>().QueryRecordCount(new RecordRestriction("IncidentID = {0}", parentID));
         }
 
-        [AuthorizeHubRole("Administrator")]
+
         [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.QueryRecords)]
         public IEnumerable<CycleDataSOEPointView> QueryCycleDataSOEPointViewItems(int parentID, string sortField, bool ascending, int page, int pageSize, string filterText)
         {
@@ -284,7 +284,6 @@ namespace SOETools
         #region [ IncidentEventCycleDataView Table Operations ]
 
 
-        [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecordCount)]
         public int QueryIncidentEventCycleDataViewCount(int parentID, string filterText)
         {
@@ -301,7 +300,6 @@ namespace SOETools
 
         }
 
-        [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecords)]
         public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(int parentID, string sortField, bool ascending, int page, int pageSize, string filterText)
         {
