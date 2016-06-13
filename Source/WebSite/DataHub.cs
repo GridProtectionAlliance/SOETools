@@ -264,14 +264,14 @@ namespace SOETools
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.QueryRecordCount)]
-        public int QueryCycleDataSOEPointViewCount(int parentID)
+        public int QueryCycleDataSOEPointViewCount(int parentID, string filterText)
         {
             return m_dbContext.Table<CycleDataSOEPointView>().QueryRecordCount(new RecordRestriction("IncidentID = {0}", parentID));
         }
 
         [AuthorizeHubRole("Administrator")]
         [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.QueryRecords)]
-        public IEnumerable<CycleDataSOEPointView> QueryCycleDataSOEPointViewItems(int parentID, string sortField, bool ascending, int page, int pageSize)
+        public IEnumerable<CycleDataSOEPointView> QueryCycleDataSOEPointViewItems(int parentID, string sortField, bool ascending, int page, int pageSize, string filterText)
         {
             return m_dbContext.Table<CycleDataSOEPointView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("IncidentID = {0}", parentID));
         }
