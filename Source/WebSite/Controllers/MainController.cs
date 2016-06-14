@@ -107,22 +107,26 @@ namespace SOETools.Controllers
             ViewBag.SOESAD = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount();
             ViewBag.FaultsAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL"));
             ViewBag.VoltsAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL"));
+            ViewBag.OtherAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL"));
 
             List<int> counts = new List<int>();
             List<int> faults = new List<int>();
             List<int> volts = new List<int>();
+            List<int> others = new List<int>();
 
             foreach (ValueList vl in ViewBag.timeWindows)
             {
                 counts.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
                 faults.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
                 volts.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
+                others.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
             }
 
 
             ViewBag.counts = counts;
             ViewBag.faults = faults;
             ViewBag.volts = volts;
+            ViewBag.others = others;
             return View();
         }
 

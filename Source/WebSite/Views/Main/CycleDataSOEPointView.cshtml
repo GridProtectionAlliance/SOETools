@@ -41,75 +41,28 @@
     simpleVoltageStatePath = Url.Content(simpleVoltageStatePath).EnsureEnd('/');
     string simpleBreakerStatusPath = Model.GetPageSetting(ViewBag, "simpleBreakerStatePath", ViewBag.SimpleBreakerStatusPath);
     simpleBreakerStatusPath = Url.Content(simpleBreakerStatusPath).EnsureEnd('/');
-
-    ViewBag.CustomTitle = "SOE Data";
-    ViewBag.AddNewEditTitle = "";
-    ViewBag.HeaderColumns = new[]
-    {   //    { "Field", "Label", "Classes" }
-        new[] { "Name", "Meter Name", "text-center" },
-        new[] { "Timestamp", "Date/Time", "text-center" },
-        new[] { null, "Phasing", "text-center valign-middle"},
-        new[] { null, "Upstate", "text-center valign-middle" },
-        new[] { null, "Point code", "text-center valign-middle" },
-        new[] { null, "DownState", "text-center valign-middle" },
-        new[] { null, "Imax", "text-center valign-middle" },
-        new[] { null, "Vmin", "text-center valign-middle" }
-    };
-
-    ViewBag.BodyRows = BodyRows().ToString();
-    ViewBag.AddNewEditDialog = AddNewEditDialog().ToString();
-    ViewBag.HideAddNewButton = true;
-    ViewBag.CanEdit = false;
-    ViewBag.HideUnauthorizedControls = true;
 }
-@helper BodyRows()
-{
-    <td width="11%" class="text-center valign-middle" data-bind="text: Name"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="text: Timestamp.formatDate(DateTimeFormat)"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="text: Phasing"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="data: checkbox.is(':checked') ? renderSimpleVoltageState(UpState) : renderVoltageState(UpState)"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="text: checkbox.is(':checked') ? renderSimpleBreakerStatus.bind($data) : renderBreakerStatus.bind($data)"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="text: checkbox.is(':checked') ? renderSimpleVoltageState(DownState) : renderVoltageState(DownState)"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="text: Imax.toFixed(0)"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="text: Vmin.toFixed(0)"></td>
-    <td width="11%" class="text-center valign-middle" nowrap><button type="button" class="btn btn-xs" data-bind="click: updateRecord.bind($data)"><span class="glyphicon glyphicon-pencil"></span></button></td>
-}
-
-@helper AddNewEditDialog()
-{
-    <div class="col-md-12">
-        <input id="uploadFiles" name="uploadFiles[]" type="file" multiple class="file-loading">
-    </div>
-}
-@Html.Partial("PagedViewModel")
-
-@helper SimpleFilter()
-{
 
     <div style="margin: 5px; text-align: right; cursor: default">
         <label style="font-weight: normal" for="simpleCheckbox">Simple Icons</label>
         <input id="simpleCheckbox" type="checkbox" onchange="reload();"/>
     </div>
-}
+
 <div id="soepointTable"></div>
 
 @section Scripts {
     <script type="text/javascript" src="~/Scripts/CycleDataSOEPointView.js"></script>
 
     <script type="text/javascript">
-        @Html.Raw(Model.RenderViewModelConfiguration<CycleDataSOEPointView>(ViewBag, "TimeStamp", IncidentID))
-
-        var checkbox = $('#simpleCheckbox');
-
-        $(function() {
+       $(function() {
             var childWindow;
             var simpleIsChecked = (Cookies.get('SimpleIsChecked') === 'true');
-
+            var checkbox = $('#simpleCheckbox');
             if (simpleIsChecked !== undefined)
                 checkbox.prop('checked', simpleIsChecked);
 
             $(window).on("hubConnected", function() {
-                dataHub.queryCycleDataSOEPointViewItems(@IncidentID, "Timestamp", true, 1, 100).done(function(records) {
+                dataHub.queryCycleDataSOEPointViewItems(@IncidentID, "Timestamp", true, 1, 100, null).done(function(records) {
                     $('#soepointTable').puidatatable({
                         columns: [
                             { field: 'Name', bodyStyle: 'text-align: center', headerText: 'Meter Name' },
@@ -120,10 +73,6 @@
                             { field: 'DownState', bodyStyle: 'text-align: center', headerText: 'Downstate', content: function(data) { return checkbox.is(':checked') ? renderSimpleVoltageState(data.DownState) : renderVoltageState(data.DownState); } },
                             { field: 'Imax', bodyStyle: 'text-align: center', headerText: 'Imax', content: function(data) { return data.Imax.toFixed(0); } },
                             { field: 'Vmin', bodyStyle: 'text-align: center', headerText: 'Vmin', content: function(data) { return data.Vmin.toFixed(0); } },
-                            { field: '', bodyStyle: 'text-align: center',  content: function(data){
-                                return '<button type="button" class="btn btn-xs" onclick="updateRecord()"><span class="glyphicon glyphicon-pencil"></span></button>';
-
-                            }, clickable: false }
                         ],
                         datasource: records,
                         selectionMode: 'single',
@@ -181,17 +130,6 @@
             return '<img src="@simpleBreakerStatusPath' + getSimpleBreakerStatus(data) + '.png" />';
         }
 
-        function updateRecord(record){
-            console.log('hih');
-        }
-        
-        function checkBoxState(){
-            return Che
-        }
-        
-        function checkBoxBreaker(){
-
-        }
 
     </script>
 }

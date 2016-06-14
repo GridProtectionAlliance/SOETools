@@ -298,7 +298,8 @@ namespace SOETools
                 restriction = "AND FaultType IS NOT NULL";
             else if (restriction == "AllVolts")
                 restriction = "AND ((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL";
-
+            else if (restriction == "Others")
+                restriction = "AND ((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL";
             else
                 restriction = "";
             
@@ -322,6 +323,8 @@ namespace SOETools
                 restriction = "AND FaultType IS NOT NULL";
             else if (restriction == "AllVolts")
                 restriction = "AND ((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL";
+            else if (restriction == "Others")
+                restriction = "AND ((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL";
             else
                 restriction = "";
 

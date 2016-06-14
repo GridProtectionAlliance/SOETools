@@ -32,6 +32,7 @@
     List<int> counts = ViewBag.counts;
     List<int> faults = ViewBag.faults;
     List<int> volts = ViewBag.volts;
+    List<int> others = ViewBag.others;
     ValueList[] timeWindows = ViewBag.timeWindows;
 
 }
@@ -87,6 +88,18 @@
         </tr>
         <tr>
             <td>Other</td>
+            @{
+                i = 0;
+
+                foreach (int o in others)
+                {
+
+                    <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=Others")">@Html.Raw(o)</a></td>
+                }
+
+            }
+            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1&Title=Voltage Source&Restriction=Others")">@ViewBag.OtherAT</a></td>
+
         </tr>
         <tr>
             <td>SOE Total</td>
