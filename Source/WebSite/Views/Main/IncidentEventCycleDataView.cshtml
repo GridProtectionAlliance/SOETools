@@ -31,6 +31,8 @@
     DataContext dataContext = Model.DbDataContext;
     NameValueCollection parameters = Request.QueryString;
     int dateRange = int.Parse(parameters["DateRange"] ?? "-1");
+    string title = parameters["Title"] ?? "" ;
+    string restriction = parameters["Restriction"] ?? "";
 
 
     ViewBag.CustomTitle = "Incidents";
@@ -106,7 +108,7 @@
 </div>
 @section Scripts {
     <script>
-        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag, "StartTime", dateRange))
+        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag, "StartTime", dateRange, "'" + restriction +"'"))
 
         $(function () {
             $("#openSOEDialog").modal({ show: false, backdrop: "static", keyboard: false });
