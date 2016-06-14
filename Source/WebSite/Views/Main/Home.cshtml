@@ -21,12 +21,19 @@
     //
     //*****************************************************************************************************@
 @using GSF.Web.Model
+@using SOETools.Model
 @model SOETools.Model.AppModel
 @{
     // DataContext is the "database connection" that is available for the page, you can
     // use direct database calls, e.g., dataContect.Connection.RetrieveData(...) or you
     // can use model based table operations, e.g., dataContext.Table<Page>().LoadRecord(id)
     DataContext dataContext = Model.DataContext;
+
+    List<int> counts = ViewBag.counts;
+    List<int> faults = ViewBag.faults;
+    List<int> volts = ViewBag.volts;
+    ValueList[] timeWindows = ViewBag.timeWindows;
+
 }
 @section StyleSheets {
     @* Include any page specific style sheets here, these will be added to page header *@
@@ -41,15 +48,58 @@
 
         <tr>
             <td>&nbsp;</td>
-            <td align="right">&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;Days</td>
-            <td align="right">&nbsp;&nbsp;&nbsp;&nbsp;60&nbsp;Days</td>
+            @foreach (ValueList vl in timeWindows)
+            {
+                <td align="right">&nbsp;&nbsp;&nbsp;&nbsp; @Html.Raw(vl.Text)</td>
+            }
             <td align="right">&nbsp;&nbsp;&nbsp;&nbsp;All&nbsp;Time</td>
         </tr>
 
         <tr>
+            <td>Faults(total)</td>
+            @{
+                int i = 0;
+
+                foreach (int f in faults)
+                {
+
+                    <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=" + timeWindows[i++].Value +"&Title=Faults&Restriction=FaultType IS NOT NULL")">@Html.Raw(f)</a></td>
+                }
+
+            }
+            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1&Title=Faults&Restriction=FaultTypeNotNull")">@ViewBag.FaultsAT</a></td>
+
+        </tr>
+        <tr>
+            <td>Voltage Source(total)</td>
+            @{
+                i = 0;
+
+                foreach (int v in volts)
+                {
+
+                    <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=AllVolts")">@Html.Raw(v)</a></td>
+                }
+
+            }
+            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1&Title=Voltage Source&Restriction=AllVolts")">@ViewBag.VoltsAT</a></td>
+
+        </tr>
+        <tr>
+            <td>Other</td>
+        </tr>
+        <tr>
             <td>SOE Total</td>
-            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=7")">@ViewBag.SOES7D</a></td>
-            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=60")">@ViewBag.SOES90D</a></td>
+            @{
+                i = 0;
+
+                foreach (int c in counts)
+                {
+
+                    <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=" + timeWindows[i++].Value)">@Html.Raw(c)</a></td>
+                }
+
+            }
             <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1")">@ViewBag.SOESAD</a></td>
         </tr>
     </table>

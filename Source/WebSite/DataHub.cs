@@ -285,7 +285,7 @@ namespace SOETools
 
 
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecordCount)]
-        public int QueryIncidentEventCycleDataViewCount(int parentID, string filterText)
+        public int QueryIncidentEventCycleDataViewCount(int parentID, string restriction, string filterText)
         {
             if (filterText == null) filterText = "%";
             else
@@ -293,15 +293,23 @@ namespace SOETools
                 // Build your filter string here!
                 filterText += "%";
             }
-            if(parentID == -1)
-                return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("Device LIKE {0}", filterText));
-            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("Device LIKE {0} AND DATEDIFF(day, StartTime, GETDATE()) <= {1}", filterText, parentID));
 
+            if (restriction == "FaultTypeNotNull")
+                restriction = "AND FaultType IS NOT NULL";
+            else if (restriction == "AllVolts")
+                restriction = "AND ((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL";
+
+            else
+                restriction = "";
+            
+            if (parentID == -1)
+                return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction($"Device LIKE '{filterText}' {restriction}"));
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction($"Device LIKE '{filterText}' AND DATEDIFF(day, StartTime, GETDATE()) <= {parentID} {restriction}"));
 
         }
 
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecords)]
-        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(int parentID, string sortField, bool ascending, int page, int pageSize, string filterText)
+        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(int parentID, string restriction, string sortField, bool ascending, int page, int pageSize, string filterText)
         {
             if (filterText == null) filterText = "%";
             else
@@ -309,17 +317,23 @@ namespace SOETools
                 // Build your filter string here!
                 filterText += "%";
             }
-            if (parentID == -1)
-                return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("Device LIKE {0}", filterText));
-            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("Device LIKE {0} AND DATEDIFF(day, StartTime, GETDATE()) <= {1}", filterText, parentID));
 
+            if (restriction == "FaultTypeNotNull")
+                restriction = "AND FaultType IS NOT NULL";
+            else if (restriction == "AllVolts")
+                restriction = "AND ((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL";
+            else
+                restriction = "";
+
+            if (parentID == -1)
+                return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction($"Device LIKE '{filterText}' {restriction}"));
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction($"Device LIKE '{filterText}' AND DATEDIFF(day, StartTime, GETDATE()) <= {parentID} {restriction}"));
         }
 
 
 
 
         #endregion
-
 
         #region [ Page Table Operations ]
 

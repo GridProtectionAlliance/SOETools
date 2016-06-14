@@ -45,6 +45,7 @@ namespace SOETools.Model
         }
 
         [Label("Key (Option Value)")]
+        [UseEscapedName]
         public int Key
         {
             get; set;
