@@ -106,27 +106,59 @@ namespace SOETools.Controllers
             ViewBag.timeWindows = m_dataContext.Table<ValueList>().QueryRecords(restriction: new RecordRestriction("GroupID = {0}", groupID)).ToArray();
             ViewBag.SOESAD = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount();
             ViewBag.FaultsAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL"));
+            ViewBag.FaultsLGAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N'"));
+            ViewBag.FaultsLLAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 2"));
+            ViewBag.FaultsLLLAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 3"));
             ViewBag.VoltsAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL"));
+            ViewBag.VoltSAGAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("(Vmin / NominalVoltage) <= 0.9 AND FaultType IS NULL"));
+            ViewBag.VoltSWELLAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("(Vmin / NominalVoltage) >= 1.1 AND FaultType IS NULL"));
             ViewBag.OtherAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL"));
 
             List<int> counts = new List<int>();
             List<int> faults = new List<int>();
+            List<int> faultsLG = new List<int>();
+            List<int> faultsLL = new List<int>();
+            List<int> faultsLLL = new List<int>();
             List<int> volts = new List<int>();
             List<int> others = new List<int>();
+            List<int> voltsags = new List<int>();
+            List<int> voltswells = new List<int>();
 
             foreach (ValueList vl in ViewBag.timeWindows)
             {
                 counts.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
                 faults.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
+                faultsLG.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
+                faultsLL.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 2 AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
+                faultsLLL.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 3 AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
                 volts.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
+                voltsags.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("(Vmin / NominalVoltage) <= 0.9 AND FaultType IS NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
+                voltswells.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("(Vmin / NominalVoltage) >= 1.1 AND FaultType IS NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
                 others.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
             }
 
 
             ViewBag.counts = counts;
             ViewBag.faults = faults;
+            ViewBag.faultsLG = faultsLG;
+            ViewBag.faultsLL = faultsLL;
+            ViewBag.faultsLLL = faultsLLL;
             ViewBag.volts = volts;
             ViewBag.others = others;
+            ViewBag.voltsags = voltsags;
+            ViewBag.voltswells = voltswells;
+
+            return View();
+        }
+
+        public ActionResult Faults()
+        {
+            m_appModel.ConfigureView(Url.RequestContext, "Faults", ViewBag);
+            int groupID = m_dataContext.Connection.ExecuteScalar<int?>("Select ID From ValueListGroup Where Name = 'faultBin'") ?? 0;
+            ViewBag.faultBins = m_dataContext.Table<ValueList>().QueryRecords(restriction: new RecordRestriction("GroupID = {0}", groupID)).ToArray();
+
+
+
             return View();
         }
 

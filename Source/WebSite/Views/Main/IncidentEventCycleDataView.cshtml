@@ -31,11 +31,27 @@
     DataContext dataContext = Model.DbDataContext;
     NameValueCollection parameters = Request.QueryString;
     int dateRange = int.Parse(parameters["DateRange"] ?? "-1");
-    string title = parameters["Title"] ?? "" ;
+    string dateString = (dateRange == -1 ? ", Date Range: All Time" : (dateRange == 1 ? ", Date Range: 1 day" : $", Date Range : {dateRange} days"));
+    string title = parameters["Title"] ?? "SOE Incidents" ;
     string restriction = parameters["Restriction"] ?? "";
+    int minVolt = int.Parse(parameters["MinVolt"] ?? "-1");
+    int maxVolt = int.Parse(parameters["MaxVolt"] ?? "-1");
 
+    string faultBin = "";
+    if(minVolt == -1 && maxVolt != -1)
+    {
+        faultBin = $", Fault Bin: > {maxVolt} Volts";
+    }
+    else if(minVolt != -1 && maxVolt == -1)
+    {
+        faultBin = $", Fault Bin:  < {minVolt} Volts";
+    }
+    else if(minVolt!= -1 && maxVolt != -1)
+    {
+        faultBin = $", Fault Bin: {minVolt} - {maxVolt} Volts";
+    }
 
-    ViewBag.CustomTitle = "Incidents";
+    ViewBag.CustomTitle = title + faultBin + dateString;
     ViewBag.AddNewEditTitle = "";
     ViewBag.HeaderColumns = new[]
 {   //    { "Field", "Label", "Classes" }
@@ -108,7 +124,7 @@
 </div>
 @section Scripts {
     <script>
-        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag, "StartTime", dateRange, "'" + restriction +"'"))
+        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag, "StartTime", dateRange, "'" + restriction +"'", minVolt, maxVolt))
 
         $(function () {
             $("#openSOEDialog").modal({ show: false, backdrop: "static", keyboard: false });

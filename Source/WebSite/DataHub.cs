@@ -285,7 +285,7 @@ namespace SOETools
 
 
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecordCount)]
-        public int QueryIncidentEventCycleDataViewCount(int parentID, string restriction, string filterText)
+        public int QueryIncidentEventCycleDataViewCount(int parentID, string restriction, int minVolt, int maxVolt, string filterText)
         {
             if (filterText == null) filterText = "%";
             else
@@ -294,10 +294,37 @@ namespace SOETools
                 filterText += "%";
             }
 
+            // if necessary build voltString
+            string voltRestriction = "";
+            if (minVolt == -1 && maxVolt != -1)
+                voltRestriction = $" AND Vmin > {maxVolt}";
+            else if(minVolt != -1 && maxVolt == -1)
+                voltRestriction = $" AND Vmin < {minVolt}";
+            else if (minVolt != -1 && maxVolt != -1)
+                voltRestriction = $" AND Vmin >= {minVolt} AND Vmin < {maxVolt}";
+
             if (restriction == "FaultTypeNotNull")
                 restriction = "AND FaultType IS NOT NULL";
+            else if (restriction == "FaultTypeLG")
+                restriction = "AND FaultType LIKE '%N' AND LEN(FaultType) = 2" + voltRestriction;
+            else if (restriction == "FaultTypeLLG")
+                restriction = "AND FaultType LIKE '%N' AND LEN(FaultType) = 3" + voltRestriction;
+            else if (restriction == "FaultTypeLLLG")
+                restriction = "AND FaultType LIKE '%N' AND LEN(FaultType) = 4" + voltRestriction;
+            else if (restriction == "FaultTypeLL")
+                restriction = "AND FaultType NOT LIKE '%N' AND LEN(FaultType) = 2" + voltRestriction;
+            else if (restriction == "FaultTypeLLL")
+                restriction = "AND FaultType NOT LIKE '%N' AND LEN(FaultType) = 3" + voltRestriction;
+            else if (restriction == "FaultTypePhaseTotal")
+                restriction = "AND FaultType IS NOT NULL" + voltRestriction;
+            else if (restriction == "FaultTypeGround")
+                restriction = "AND FaultType IS NOT NULL AND Ground > 600" + voltRestriction;
             else if (restriction == "AllVolts")
                 restriction = "AND ((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL";
+            else if (restriction == "VoltSag")
+                restriction = "AND (Vmin / NominalVoltage) <= 0.9 AND FaultType IS NULL";
+            else if (restriction == "VoltSwell")
+                restriction = "AND (Vmin / NominalVoltage) >= 1.1 AND FaultType IS NULL";
             else if (restriction == "Others")
                 restriction = "AND ((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL";
             else
@@ -310,7 +337,7 @@ namespace SOETools
         }
 
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecords)]
-        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(int parentID, string restriction, string sortField, bool ascending, int page, int pageSize, string filterText)
+        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(int parentID, string restriction, int minVolt, int maxVolt, string sortField, bool ascending, int page, int pageSize, string filterText)
         {
             if (filterText == null) filterText = "%";
             else
@@ -319,10 +346,39 @@ namespace SOETools
                 filterText += "%";
             }
 
+            // if necessary build voltString
+            string voltRestriction = "";
+            if (minVolt == -1 && maxVolt != -1)
+                voltRestriction = $" AND Vmin >= {maxVolt}";
+            else if (minVolt != -1 && maxVolt == -1)
+                voltRestriction = $" AND Vmin < {minVolt}";
+            else if (minVolt != -1 && maxVolt != -1)
+                voltRestriction = $" AND Vmin >= {minVolt} AND Vmin < {maxVolt}";
+
+
+
             if (restriction == "FaultTypeNotNull")
                 restriction = "AND FaultType IS NOT NULL";
+            else if (restriction == "FaultTypeLG")
+                restriction = "AND FaultType LIKE '%N' AND LEN(FaultType) = 2" + voltRestriction;
+            else if (restriction == "FaultTypeLLG")
+                restriction = "AND FaultType LIKE '%N' AND LEN(FaultType) = 3" + voltRestriction;
+            else if (restriction == "FaultTypeLLLG")
+                restriction = "AND FaultType LIKE '%N' AND LEN(FaultType) = 4" + voltRestriction;
+            else if (restriction == "FaultTypeLL")
+                restriction = "AND FaultType NOT LIKE '%N' AND LEN(FaultType) = 2" + voltRestriction;
+            else if (restriction == "FaultTypeLLL")
+                restriction = "AND FaultType NOT LIKE '%N' AND LEN(FaultType) = 3" + voltRestriction;
+            else if (restriction == "FaultTypePhaseTotal")
+                restriction = "AND FaultType IS NOT NULL" + voltRestriction;
+            else if (restriction == "FaultTypeGround")
+                restriction = "AND FaultType IS NOT NULL AND Ground > 600" + voltRestriction;
             else if (restriction == "AllVolts")
                 restriction = "AND ((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL";
+            else if (restriction == "VoltSag")
+                restriction = "AND (Vmin / NominalVoltage) <= 0.9 AND FaultType IS NULL";
+            else if (restriction == "VoltSwell")
+                restriction = "AND (Vmin / NominalVoltage) >= 1.1 AND FaultType IS NULL";
             else if (restriction == "Others")
                 restriction = "AND ((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL";
             else
