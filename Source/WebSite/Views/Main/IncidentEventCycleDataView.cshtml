@@ -36,6 +36,9 @@
     string restriction = parameters["Restriction"] ?? "";
     int minVolt = int.Parse(parameters["MinVolt"] ?? "-1");
     int maxVolt = int.Parse(parameters["MaxVolt"] ?? "-1");
+    float minRatio = float.Parse(parameters["MinRatio"] ?? "-1");
+    float maxRatio = float.Parse(parameters["MaxRatio"] ?? "-1");
+    string phase = parameters["Phase"] ?? "";
 
     string faultBin = "";
     if(minVolt == -1 && maxVolt != -1)
@@ -51,7 +54,22 @@
         faultBin = $", Fault Bin: {minVolt} - {maxVolt} Volts";
     }
 
-    ViewBag.CustomTitle = title + faultBin + dateString;
+    string voltBin = "";
+    if (minRatio == -1 && maxRatio != -1)
+    {
+        voltBin = $", Voltage Bin: > {maxRatio}";
+    }
+    else if (minRatio != -1 && maxRatio == -1)
+    {
+        voltBin = $", Voltage Bin:  < {minRatio}";
+    }
+    else if (minRatio != -1 && maxRatio != -1)
+    {
+        voltBin = $", Voltage Bin: {minRatio} - {maxRatio}";
+    }
+
+
+    ViewBag.CustomTitle = title + faultBin + voltBin + dateString;
     ViewBag.AddNewEditTitle = "";
     ViewBag.HeaderColumns = new[]
 {   //    { "Field", "Label", "Classes" }
@@ -124,7 +142,7 @@
 </div>
 @section Scripts {
     <script>
-        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag, "StartTime", dateRange, "'" + restriction +"'", minVolt, maxVolt))
+        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag, "StartTime", dateRange, "'" + restriction +"'", minVolt, maxVolt, minRatio, maxRatio, "'" + phase + "'"))
 
         $(function () {
             $("#openSOEDialog").modal({ show: false, backdrop: "static", keyboard: false });

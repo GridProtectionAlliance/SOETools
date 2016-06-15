@@ -41,6 +41,8 @@
     string title = parameters["Title"] ?? "";
     string restriction = parameters["Restriction"] ?? "";
 
+    ViewBag.CustomTitle = "SOE Fault Dashboard";
+
     int LGCount8001500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 800 AND Vmin < 1500 " + dateRestriction));
     int LLGCount8001500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 800 AND Vmin < 1500 " + dateRestriction));
     int LLLGCount8001500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 4 AND Vmin >= 800 AND Vmin < 1500 " + dateRestriction));
@@ -170,7 +172,7 @@
         </tr>
 
         <tr >
-            <td style="border-top: 1px solid black;">Total</tdstyle="border-top:>
+            <td style="border-top: 1px solid black;">Total</td>
             <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-G Fault&Restriction=FaultTypeLG")">@Html.Raw(LGCount8001500 + LGCount15003000 + LGCount30004500 + LGCount45006000 + LGCount6000)</a></td>
             <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-G Fault&Restriction=FaultTypeLLG")">@Html.Raw(LLGCount8001500 + LLGCount15003000 + LLGCount30004500+ LLGCount45006000+ LLGCount6000)</a></td>
             <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L-G Fault&Restriction=FaultTypeLLLG")">@Html.Raw(LLLGCount8001500 + LLLGCount15003000 + LLLGCount30004500 + LLLGCount45006000 + LLLGCount6000)</a></td>

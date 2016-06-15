@@ -1723,6 +1723,7 @@
     <Content Include="Views\Main\OpenSEE.cshtml" />
     <Content Include="Views\Main\IncidentEventCycleDataView.cshtml" />
     <Content Include="Views\Main\Faults.cshtml" />
+    <Content Include="Views\Main\VoltSource.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

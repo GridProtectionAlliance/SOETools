@@ -41,6 +41,8 @@
     List<int> others = ViewBag.others;
     ValueList[] timeWindows = ViewBag.timeWindows;
 
+
+
 }
 @section StyleSheets {
     @* Include any page specific style sheets here, these will be added to page header *@
@@ -117,11 +119,11 @@
                 foreach (int f in faultsLLL)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=" + timeWindows[i++].Value + "&Title=Faults&Restriction=FaultTypeLLL")">@Html.Raw(f)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=" + timeWindows[i++].Value + "&Title=Faults&Restriction=FaultTypeLLL")">@Html.Raw(f)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1&Title=Faults&Restriction=FaultTypeLLL")">@ViewBag.FaultsLLLAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=-1&Title=Faults&Restriction=FaultTypeLLL")">@ViewBag.FaultsLLLAT</a></td>
 
 
         </tr>
@@ -134,11 +136,11 @@
                 foreach (int v in volts)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=AllVolts")">@Html.Raw(v)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=AllVolts")">@Html.Raw(v)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1&Title=Voltage Source&Restriction=AllVolts")">@ViewBag.VoltsAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=-1&Title=Voltage Source&Restriction=AllVolts")">@ViewBag.VoltsAT</a></td>
 
         </tr>
         <tr>
@@ -149,11 +151,11 @@
                 foreach (int s in voltsags)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=VoltSag")">@Html.Raw(s)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=VoltSag")">@Html.Raw(s)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1&Title=Voltage Source&Restriction=VoltSag")">@ViewBag.VoltSAGAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=-1&Title=Voltage Source&Restriction=VoltSag")">@ViewBag.VoltSAGAT</a></td>
 
         </tr>
         <tr>
@@ -164,11 +166,11 @@
                 foreach (int s in voltswells)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=VoltSwell")">@Html.Raw(s)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=VoltSwell")">@Html.Raw(s)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1&Title=Voltage Source&Restriction=VoltSwell")">@ViewBag.VoltSWELLAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=-1&Title=Voltage Source&Restriction=VoltSwell")">@ViewBag.VoltSWELLAT</a></td>
 
         </tr>
 

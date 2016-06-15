@@ -162,6 +162,18 @@ namespace SOETools.Controllers
             return View();
         }
 
+        public ActionResult VoltSource()
+        {
+            m_appModel.ConfigureView(Url.RequestContext, "VoltSource", ViewBag);
+            int groupID = m_dataContext.Connection.ExecuteScalar<int?>("Select ID From ValueListGroup Where Name = 'faultBin'") ?? 0;
+            ViewBag.faultBins = m_dataContext.Table<ValueList>().QueryRecords(restriction: new RecordRestriction("GroupID = {0}", groupID)).ToArray();
+
+
+
+            return View();
+        }
+
+
         public ActionResult Help()
         {
             m_appModel.ConfigureView(Url.RequestContext, "Help", ViewBag);

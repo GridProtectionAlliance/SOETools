@@ -285,7 +285,7 @@ namespace SOETools
 
 
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecordCount)]
-        public int QueryIncidentEventCycleDataViewCount(int parentID, string restriction, int minVolt, int maxVolt, string filterText)
+        public int QueryIncidentEventCycleDataViewCount(int parentID, string restriction, int minVolt, int maxVolt, float minRatio, float maxRatio, string phase, string filterText)
         {
             if (filterText == null) filterText = "%";
             else
@@ -303,6 +303,37 @@ namespace SOETools
             else if (minVolt != -1 && maxVolt != -1)
                 voltRestriction = $" AND Vmin >= {minVolt} AND Vmin < {maxVolt}";
 
+            // if necessary build ratioString
+            string ratioRestriction = "";
+            if (minRatio == -1 && maxRatio != -1)
+            {
+                if (phase == "All")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) > {maxRatio}";
+                else if (phase == "Ground")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) > {maxRatio} AND Ground > 600";
+                else
+                    ratioRestriction = $" AND (VoltSource{phase}/NominalVoltage ) > {maxRatio}";
+            }
+            else if (minRatio != -1 && maxRatio == -1)
+            {
+                if (phase == "All")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) < {minRatio}";
+                else if (phase == "Ground")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) < {minRatio} AND Ground > 600";
+                else
+                    ratioRestriction = $" AND (VoltSource{phase}/NominalVoltage ) < {minRatio}";
+            }
+            else if (minRatio != -1 && maxRatio != -1)
+            {
+                if (phase == "All")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) >= {minRatio} AND (Vmin/NominalVoltage ) < {maxRatio}";
+                else if (phase == "Ground")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) >= {minRatio} AND (Vmin/NominalVoltage ) < {maxRatio} AND Ground > 600";
+                else
+                    ratioRestriction = $" AND (VoltSource{phase}/NominalVoltage ) >= {minRatio} AND (VoltSource{phase}/NominalVoltage ) < {maxRatio}";
+            }
+
+
             if (restriction == "FaultTypeNotNull")
                 restriction = "AND FaultType IS NOT NULL";
             else if (restriction == "FaultTypeLG")
@@ -327,17 +358,20 @@ namespace SOETools
                 restriction = "AND (Vmin / NominalVoltage) >= 1.1 AND FaultType IS NULL";
             else if (restriction == "Others")
                 restriction = "AND ((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL";
+            else if (restriction == "Volt")
+                restriction = " AND FaultType IS NULL";
+
             else
                 restriction = "";
             
             if (parentID == -1)
-                return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction($"Device LIKE '{filterText}' {restriction}"));
-            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction($"Device LIKE '{filterText}' AND DATEDIFF(day, StartTime, GETDATE()) <= {parentID} {restriction}"));
+                return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction($"Device LIKE '{filterText}' {restriction} {ratioRestriction}"));
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction($"Device LIKE '{filterText}' AND DATEDIFF(day, StartTime, GETDATE()) <= {parentID} {restriction} {ratioRestriction}"));
 
         }
 
         [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.QueryRecords)]
-        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(int parentID, string restriction, int minVolt, int maxVolt, string sortField, bool ascending, int page, int pageSize, string filterText)
+        public IEnumerable<IncidentEventCycleDataView> QueryIncidentEventCycleDataViewItems(int parentID, string restriction, int minVolt, int maxVolt, float minRatio,  float maxRatio, string phase, string sortField, bool ascending, int page, int pageSize, string filterText)
         {
             if (filterText == null) filterText = "%";
             else
@@ -355,6 +389,35 @@ namespace SOETools
             else if (minVolt != -1 && maxVolt != -1)
                 voltRestriction = $" AND Vmin >= {minVolt} AND Vmin < {maxVolt}";
 
+            // if necessary build ratioString
+            string ratioRestriction = "";
+            if (minRatio == -1 && maxRatio != -1)
+            {
+                if(phase == "All")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) > {maxRatio}";
+                else if(phase == "Ground")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) > {maxRatio} AND Ground > 600";
+                else
+                    ratioRestriction = $" AND (VoltSource{phase}/NominalVoltage ) > {maxRatio}";
+            }
+            else if (minRatio != -1 && maxRatio == -1)
+            {
+                if (phase == "All")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) < {minRatio}";
+                else if (phase == "Ground")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) < {minRatio} AND Ground > 600";
+                else
+                    ratioRestriction = $" AND (VoltSource{phase}/NominalVoltage ) < {minRatio}";
+            }
+            else if (minRatio != -1 && maxRatio != -1)
+            {
+                if (phase == "All")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) >= {minRatio} AND (Vmin/NominalVoltage ) < {maxRatio}";
+                else if (phase == "Ground")
+                    ratioRestriction = $" AND (Vmin/NominalVoltage ) >= {minRatio} AND (Vmin/NominalVoltage ) < {maxRatio} AND Ground > 600";
+                else
+                    ratioRestriction = $" AND (VoltSource{phase}/NominalVoltage ) >= {minRatio} AND (VoltSource{phase}/NominalVoltage ) < {maxRatio}";
+            }
 
 
             if (restriction == "FaultTypeNotNull")
@@ -381,12 +444,15 @@ namespace SOETools
                 restriction = "AND (Vmin / NominalVoltage) >= 1.1 AND FaultType IS NULL";
             else if (restriction == "Others")
                 restriction = "AND ((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL";
+            else if (restriction == "Volt")
+                restriction = " AND FaultType IS NULL";
+
             else
                 restriction = "";
 
             if (parentID == -1)
-                return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction($"Device LIKE '{filterText}' {restriction}"));
-            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction($"Device LIKE '{filterText}' AND DATEDIFF(day, StartTime, GETDATE()) <= {parentID} {restriction}"));
+                return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction($"Device LIKE '{filterText}' {restriction} {ratioRestriction}"));
+            return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction($"Device LIKE '{filterText}' AND DATEDIFF(day, StartTime, GETDATE()) <= {parentID} {restriction} {ratioRestriction}"));
         }
 
 
