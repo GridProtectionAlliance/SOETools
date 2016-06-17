@@ -72,11 +72,11 @@
                 foreach (int f in faults)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=" + timeWindows[i++].Value + "&Title=SOE Fault Summary&Restriction=FaultTypeNotNull")">@Html.Raw(f)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=" + timeWindows[i++].Value + "&Title=SOE Fault Summary&IncidentTypes=LG,LLG,LLLG,LL,LLL")">@Html.Raw(f)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=-1&Title=SOE Fault Summary&Restriction=FaultTypeNotNull")">@ViewBag.FaultsAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=-1&Title=SOE Fault Summary&IncidentTypes=LG,LLG,LLLG,LL,LLL")">@ViewBag.FaultsAT</a></td>
 
         </tr>
         <tr>
@@ -87,11 +87,11 @@
                 foreach (int f in faultsLG)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=" + timeWindows[i++].Value + "&Title=SOE Fault Summary&Restriction=FaultTypeLG")">@Html.Raw(f)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=" + timeWindows[i++].Value + "&Title=SOE Fault Summary&IncidentTypes=LG,LLG,LLLG")">@Html.Raw(f)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=-1&Title=SOE Fault Summary&Restriction=FaultTypeLG")">@ViewBag.FaultsLGAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=-1&Title=SOE Fault Summary&IncidentTypes=LG,LLG,LLLG")">@ViewBag.FaultsLGAT</a></td>
 
         </tr>
         <tr>
@@ -103,11 +103,11 @@
                 foreach (int f in faultsLL)
                 {
 
-                <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=" + timeWindows[i++].Value + "&Title=Faults&Restriction=FaultTypeLL")">@Html.Raw(f)</a></td>
+                <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=" + timeWindows[i++].Value + "&Title=Faults&IncidentTypes=LL")">@Html.Raw(f)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=-1&Title=Faults&Restriction=FaultTypeLL")">@ViewBag.FaultsLLAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=-1&Title=Faults&IncidentTypes=LL")">@ViewBag.FaultsLLAT</a></td>
 
         </tr>
         <tr>
@@ -119,11 +119,11 @@
                 foreach (int f in faultsLLL)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=" + timeWindows[i++].Value + "&Title=Faults&Restriction=FaultTypeLLL")">@Html.Raw(f)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=" + timeWindows[i++].Value + "&Title=Faults&IncidentTypes=LLL")">@Html.Raw(f)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=-1&Title=Faults&Restriction=FaultTypeLLL")">@ViewBag.FaultsLLLAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/Faults/?DateRange=-1&Title=Faults&IncidentTypes=LLL")">@ViewBag.FaultsLLLAT</a></td>
 
 
         </tr>
@@ -136,11 +136,11 @@
                 foreach (int v in volts)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=AllVolts")">@Html.Raw(v)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&IncidentTypes=A-SAG,B-SAG,C-SAG,A-SWELL,B-SWELL,C-SWELL")">@Html.Raw(v)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=-1&Title=Voltage Source&Restriction=AllVolts")">@ViewBag.VoltsAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=-1&Title=Voltage Source&IncidentTypes=A-SAG,B-SAG,C-SAG,A-SWELL,B-SWELL,C-SWELL")">@ViewBag.VoltsAT</a></td>
 
         </tr>
         <tr>
@@ -151,11 +151,11 @@
                 foreach (int s in voltsags)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=VoltSag")">@Html.Raw(s)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&IncidentTypes=A-SAG,B-SAG,C-SAG")">@Html.Raw(s)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=-1&Title=Voltage Source&Restriction=VoltSag")">@ViewBag.VoltSAGAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=-1&Title=Voltage Source&IncidentTypes=A-SAG,B-SAG,C-SAG")">@ViewBag.VoltSAGAT</a></td>
 
         </tr>
         <tr>
@@ -166,11 +166,11 @@
                 foreach (int s in voltswells)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=VoltSwell")">@Html.Raw(s)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&IncidentTypes=A-SWELL,B-SWELL,C-SWELL")">@Html.Raw(s)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=-1&Title=Voltage Source&Restriction=VoltSwell")">@ViewBag.VoltSWELLAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/VoltSource/?DateRange=-1&Title=Voltage Source&IncidentTypes=A-SWELL,B-SWELL,C-SWELL")">@ViewBag.VoltSWELLAT</a></td>
 
         </tr>
 
@@ -184,11 +184,11 @@
                 foreach (int o in others)
                 {
 
-                    <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&Restriction=Others")">@Html.Raw(o)</a></td>
+                    <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=" + timeWindows[i++].Value + "&Title=Voltage Source&IncidentTypes=Other")">@Html.Raw(o)</a></td>
                 }
 
             }
-            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1&Title=Voltage Source&Restriction=Others")">@ViewBag.OtherAT</a></td>
+            <td align="right"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange=-1&Title=Voltage Source&IncidentTypes=Other")">@ViewBag.OtherAT</a></td>
 
         </tr>
         <tr>

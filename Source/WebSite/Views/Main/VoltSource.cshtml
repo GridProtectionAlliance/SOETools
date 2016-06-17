@@ -21,10 +21,9 @@
     //
     //*****************************************************************************************************@
 @using System.Collections.Specialized
-@using System.Xml.Schema
-@using GSF.Data.Model
+@using System.Data
+@using GSF.Data
 @using GSF.Web.Model
-@using SOETools.Model
 @model SOETools.Model.AppModel
 @{
     // DataContext is the "database connection" that is available for the page, you can
@@ -39,32 +38,42 @@
     string dates = (dateRange != -1 ? dateRange.ToString() + " days" : "All Time");
     string dateRestriction = (dateRange != -1 ? $"AND DATEDIFF(day, StartTime, GETDATE()) <= {dateRange}" : "");
     string title = parameters["Title"] ?? "";
-    string restriction = parameters["Restriction"] ?? "";
+    string incidentTypes = parameters["IncidentTypes"] ?? "";
 
+    object[] incidentTypeParams = incidentTypes.Split(',');
+    string formatParams = string.Join(",", incidentTypeParams.Select((obj, index) => $"{{{index}}}"));
+    string incidentTypeRestriction = incidentTypeParams.Any() ? $"AND IncidentType IN ({formatParams})" : "";
 
-    int volt11A = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceA/NominalVoltage) > 1.1 " + dateRestriction));
-    int volt11B = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceB/NominalVoltage) > 1.1 " + dateRestriction));
-    int volt11C = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceC/NominalVoltage) > 1.1 " + dateRestriction));
-    int volt11PhaseTotal = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (Vmin/NominalVoltage) > 1.1 " + dateRestriction));
-    int volt11Ground = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (Vmin/NominalVoltage) > 1.1  AND Ground > 600 " + dateRestriction));
+    Func<string, string> intersectIncidentTypes = incidentTypeStr =>
+        string.Join(",", incidentTypes.Split(',').Intersect(incidentTypeStr.Split(',')).DefaultIfEmpty("None"));
 
-    int volt0709A = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceA/NominalVoltage) >= 0.7 AND (VoltSourceA/NominalVoltage) < 0.9 " + dateRestriction));
-    int volt0709B = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceA/NominalVoltage) >= 0.7 AND (VoltSourceB/NominalVoltage) < 0.9 " + dateRestriction));
-    int volt0709C = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceA/NominalVoltage) >= 0.7 AND (VoltSourceC/NominalVoltage) > 0.9 " + dateRestriction));
-    int volt0709PhaseTotal = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (Vmin/NominalVoltage) >= 0.7 AND (Vmin/NominalVoltage) < 0.9" + dateRestriction));
-    int volt0709Ground = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceA/NominalVoltage) >= 0.7 AND (Vmin/NominalVoltage) < 0.9  AND Ground > 600 " + dateRestriction));
+    DataTable incidentTable11 = dbContext.Connection.RetrieveData($"SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE (VMax / NominalVoltage) >= 1.1 {incidentTypeRestriction} {dateRestriction} GROUP BY IncidentType", incidentTypeParams);
+    int volt11A = incidentTable11.Select("IncidentType = 'A-SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt11B = incidentTable11.Select("IncidentType = 'B-SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt11C = incidentTable11.Select("IncidentType = 'C-SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt11PhaseTotal = volt11A + volt11B + volt11C;
+    int volt11Ground = dbContext.Connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM IncidentEventCycleDataView WHERE IncidentType IN ('A-SWELL', 'B-SWELL', 'C-SWELL') AND (Vmax/NominalVoltage) >= 1.1 AND IRMax > 600 {incidentTypeRestriction} {dateRestriction}", incidentTypeParams);
 
-    int volt0307A = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceA/NominalVoltage) >= 0.3 AND (VoltSourceA/NominalVoltage) < 0.7 " + dateRestriction));
-    int volt0307B = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceB/NominalVoltage) >= 0.3 AND (VoltSourceB/NominalVoltage) < 0.7 " + dateRestriction));
-    int volt0307C = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceC/NominalVoltage) >= 0.3 AND (VoltSourceC/NominalVoltage) < 0.7 " + dateRestriction));
-    int volt0307PhaseTotal = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (Vmin/NominalVoltage) >= 0.3 AND (Vmin/NominalVoltage) < 0.7 " + dateRestriction));
-    int volt0307Ground = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (Vmin/NominalVoltage) >= 0.3 AND (Vmin/NominalVoltage) < 0.7 AND Ground > 600 " + dateRestriction));
+    DataTable incidentTable0709 = dbContext.Connection.RetrieveData($"SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE (VMin / NominalVoltage) >= 0.7 AND (VMin / NominalVoltage) < 0.9 {incidentTypeRestriction} {dateRestriction} GROUP BY IncidentType", incidentTypeParams);
+    int volt0709A = incidentTable0709.Select("IncidentType = 'A-SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt0709B = incidentTable0709.Select("IncidentType = 'B-SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt0709C = incidentTable0709.Select("IncidentType = 'C-SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt0709PhaseTotal = volt0709A + volt0709B + volt0709C;
+    int volt0709Ground = dbContext.Connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM IncidentEventCycleDataView WHERE IncidentType IN ('A-SAG', 'B-SAG', 'C-SAG') AND (Vmin/NominalVoltage) >= 0.7 AND (Vmin/NominalVoltage) < 0.9 AND IRMax > 600 {incidentTypeRestriction} {dateRestriction}", incidentTypeParams);
 
-    int volt03A = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceA/NominalVoltage) < 0.3 " + dateRestriction));
-    int volt03B = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceB/NominalVoltage) < 0.3 " + dateRestriction));
-    int volt03C = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (VoltSourceC/NominalVoltage) < 0.3 " + dateRestriction));
-    int volt03PhaseTotal = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (Vmin/NominalVoltage) < 0.3 " + dateRestriction));
-    int volt03Ground = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NULL AND (Vmin/NominalVoltage) < 0.3  AND Ground > 600 " + dateRestriction));
+    DataTable incidentTable0307 = dbContext.Connection.RetrieveData($"SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE (VMin / NominalVoltage) >= 0.3 AND (VMin / NominalVoltage) < 0.7 {incidentTypeRestriction} {dateRestriction} GROUP BY IncidentType", incidentTypeParams);
+    int volt0307A = incidentTable0307.Select("IncidentType = 'A-SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt0307B = incidentTable0307.Select("IncidentType = 'B-SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt0307C = incidentTable0307.Select("IncidentType = 'C-SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt0307PhaseTotal = volt0307A + volt0307B + volt0307C;
+    int volt0307Ground = dbContext.Connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM IncidentEventCycleDataView WHERE IncidentType IN ('A-SAG', 'B-SAG', 'C-SAG') AND (Vmin/NominalVoltage) >= 0.3 AND (Vmin/NominalVoltage) < 0.7 AND IRMax > 600 {incidentTypeRestriction} {dateRestriction}", incidentTypeParams);
+
+    DataTable incidentTable03 = dbContext.Connection.RetrieveData($"SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE (VMin / NominalVoltage) < 0.3 {incidentTypeRestriction} {dateRestriction} GROUP BY IncidentType", incidentTypeParams);
+    int volt03A = incidentTable03.Select("IncidentType = 'A-SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt03B = incidentTable03.Select("IncidentType = 'B-SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt03C = incidentTable03.Select("IncidentType = 'C-SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int volt03PhaseTotal = volt03A + volt03B + volt03C;
+    int volt03Ground = dbContext.Connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM IncidentEventCycleDataView WHERE IncidentType IN ('A-SAG', 'B-SAG', 'C-SAG') AND (Vmin/NominalVoltage) < 0.3 AND IRMax > 600 {incidentTypeRestriction} {dateRestriction}", incidentTypeParams);
 
 
 }
@@ -99,46 +108,46 @@
 
         <tr>
             <td>&nbsp;&nbsp;>&nbsp;1.1</td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - A Phase&Restriction=Volt&MaxRatio=1.1&Phase=A")">@volt11A</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+ "&Title=SOE Voltage Source Summary - C Phase&Restriction=Volt&MaxRatio=1.1&Phase=C")">@volt11C</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+ "&Title=SOE Voltage Source Summary - B Phase&Restriction=Volt&MaxRatio=1.1&Phase=B")">@volt11B</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+ "&Title=SOE Voltage Source Summary - Phase Total&Restriction=Volt&MaxRatio=1.1&Phase=All")">@volt11PhaseTotal</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+ "&Title=SOE Voltage Source Summary - Ground > 600A&Restriction=Volt&MaxRatio=1.1&Phase=Ground")">@volt11Ground</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - A Phase&IncidentTypes={intersectIncidentTypes("A-SWELL")}&MinRatio=1.1")">@volt11A</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - C Phase&IncidentTypes={intersectIncidentTypes("C-SWELL")}&MinRatio=1.1")">@volt11C</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - B Phase&IncidentTypes={intersectIncidentTypes("B-SWELL")}&MinRatio=1.1")">@volt11B</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - Phase Total&IncidentTypes={intersectIncidentTypes("A-SWELL,B-SWELL,C-SWELL")}&MinRatio=1.1")">@volt11PhaseTotal</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("A-SWELL,B-SWELL,C-SWELL")}&MinRatio=1.1&MinGround=600")">@volt11Ground</a></td>
 
         </tr>
         <tr>
             <td>&nbsp;&nbsp;0.7&nbsp;-&nbsp;0.9</td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+ "&Title=SOE Voltage Source Summary - A Phase&Restriction=Volt&MinRatio=0.7&MaxRatio=0.9&Phase=A")">@volt0709A</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - C Phaset&Restriction=Volt&MinRatio=0.7&MaxRatio=0.9&Phase=C")">@volt0709C</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - B Phase&Restriction=Volt&MinRatio=0.7&MaxRatio=0.9&Phase=B")">@volt0709B</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - Phase Total&Restriction=Volt&MinRatio=0.7&MaxRatio=0.9&Phase=All")">@volt0709PhaseTotal</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - Ground > 600A&Restriction=Volt&MinRatio=0.7&MaxRatio=0.9&Phase=Ground")">@volt0709Ground</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - A Phase&IncidentTypes={intersectIncidentTypes("A-SAG")}&MinRatio=0.7&MaxRatio=0.9")">@volt0709A</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - C Phaset&IncidentTypes={intersectIncidentTypes("C-SAG")}&MinRatio=0.7&MaxRatio=0.9")">@volt0709C</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - B Phase&IncidentTypes={intersectIncidentTypes("B-SAG")}&MinRatio=0.7&MaxRatio=0.9")">@volt0709B</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - Phase Total&IncidentTypes={intersectIncidentTypes("A-SAG,B-SAG,C-SAG")}&MinRatio=0.7&MaxRatio=0.9")">@volt0709PhaseTotal</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("A-SAG,B-SAG,C-SAG")}&MinRatio=0.7&MaxRatio=0.9&MinGround=600")">@volt0709Ground</a></td>
 
         </tr>
         <tr>
             <td>&nbsp;&nbsp;0.3&nbsp;-&nbsp;0.7</td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - A Phase&Restriction=Volt&MinRatio=0.3&MaxRatio=0.7&Phase=A")">@volt0307A</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - C Phase&Restriction=Volt&MinRatio=0.3&MaxRatio=0.7&Phase=C")">@volt0307C</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - B Phase&Restriction=Volt&MinRatio=0.3&MaxRatio=0.7&Phase=B")">@volt0307B</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - Phase Total&Restriction=Volt&MinRatio=0.3&MaxRatio=0.7&Phase=All")">@volt0307PhaseTotal</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - Ground > 600A&Restriction=Volt&MinRatio=0.3&MaxRatio=0.7&Phase=Ground")">@volt0307Ground</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - A Phase&IncidentTypes={intersectIncidentTypes("A-SAG")}&MinRatio=0.3&MaxRatio=0.7")">@volt0307A</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - C Phase&IncidentTypes={intersectIncidentTypes("C-SAG")}&MinRatio=0.3&MaxRatio=0.7")">@volt0307C</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - B Phase&IncidentTypes={intersectIncidentTypes("B-SAG")}&MinRatio=0.3&MaxRatio=0.7")">@volt0307B</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - Phase Total&IncidentTypes={intersectIncidentTypes("A-SAG,B-SAG,C-SAG")}&MinRatio=0.3&MaxRatio=0.7")">@volt0307PhaseTotal</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("A-SAG,B-SAG,C-SAG")}&MinRatio=0.3&MaxRatio=0.7&MinGround=600")">@volt0307Ground</a></td>
 
         </tr>
         <tr>
             <td>&nbsp;&nbsp;&lt;&nbsp;0.3</td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - A Phase&Restriction=Volt&MinRatio=0.3&Phase=A")">@volt03A</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - C Phase&Restriction=Volt&MinRatio=0.3&Phase=C")">@volt03C</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - B Phase&Restriction=Volt&MinRatio=0.3&Phase=B")">@volt03B</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - Phase Total&Restriction=Volt&MinRatio=0.3&Phase=All")">@volt03PhaseTotal</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - Ground > 600A&Restriction=Volt&MinRatio=0.3&Phase=Ground")">@volt03Ground</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - A Phase&IncidentTypes={intersectIncidentTypes("A-SAG")}&MaxRatio=0.3")">@volt03A</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - C Phase&IncidentTypes={intersectIncidentTypes("C-SAG")}&MaxRatio=0.3")">@volt03C</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - B Phase&IncidentTypes={intersectIncidentTypes("B-SAG")}&MaxRatio=0.3")">@volt03B</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - Phase Total&IncidentTypes={intersectIncidentTypes("A-SAG,B-SAG,C-SAG")}&MaxRatio=0.3")">@volt03PhaseTotal</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("A-SAG,B-SAG,C-SAG")}&MaxRatio=0.3&MinGround=600")">@volt03Ground</a></td>
         </tr>
         <tr >
             <td style="border-top: 1px solid black;">Total</td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - A Phase&Restriction=Volt&Phase=A")">@Html.Raw(volt11A + volt0709A + volt0307A + volt03A)</a></td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - C Phase&Restriction=Volt&Phase=C")">@Html.Raw(volt11C + volt0709C + volt0307C+ volt03C)</a></td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - B Phase&Restriction=Volt&Phase=B")">@Html.Raw(volt11B + volt0709B + volt0307B + volt03B )</a></td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - Phase Total&Restriction=Volt&Phase=All")">@Html.Raw(volt11PhaseTotal + volt0709PhaseTotal + volt0307PhaseTotal + volt03PhaseTotal)</a></td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Voltage Source Summary - Ground > 600A&Restriction=Volt&Phase=Ground")">@Html.Raw(volt11Ground + volt0709Ground + volt0307Ground + volt03Ground)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - A Phase&IncidentTypes={intersectIncidentTypes("A-SAG")}")">@Html.Raw(volt11A + volt0709A + volt0307A + volt03A)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - C Phase&IncidentTypes={intersectIncidentTypes("C-SAG")}")">@Html.Raw(volt11C + volt0709C + volt0307C+ volt03C)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - B Phase&IncidentTypes={intersectIncidentTypes("B-SAG")}")">@Html.Raw(volt11B + volt0709B + volt0307B + volt03B )</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - Phase Total&IncidentTypes={intersectIncidentTypes("A-SAG,B-SAG,C-SAG,A-SWELL,B-SWELL,C-SWELL")}")">@Html.Raw(volt11PhaseTotal + volt0709PhaseTotal + volt0307PhaseTotal + volt03PhaseTotal)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Voltage Source Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("A-SAG,B-SAG,C-SAG,A-SWELL,B-SWELL,C-SWELL")}&MinGround=600")">@Html.Raw(volt11Ground + volt0709Ground + volt0307Ground + volt03Ground)</a></td>
 
         </tr>
     </table>

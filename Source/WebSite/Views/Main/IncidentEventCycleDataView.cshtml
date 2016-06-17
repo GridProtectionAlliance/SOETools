@@ -22,8 +22,6 @@
     //*****************************************************************************************************@
 @using System.Collections.Specialized
 @using GSF
-@using GSF.Data.Model
-@using GSF.Web
 @using GSF.Web.Model
 @using SOETools.Model
 @model SOETools.Model.AppModel
@@ -33,25 +31,25 @@
     int dateRange = int.Parse(parameters["DateRange"] ?? "-1");
     string dateString = (dateRange == -1 ? ", Date Range: All Time" : (dateRange == 1 ? ", Date Range: 1 day" : $", Date Range : {dateRange} days"));
     string title = parameters["Title"] ?? "SOE Incidents" ;
-    string restriction = parameters["Restriction"] ?? "";
-    int minVolt = int.Parse(parameters["MinVolt"] ?? "-1");
-    int maxVolt = int.Parse(parameters["MaxVolt"] ?? "-1");
+    string incidentTypes = parameters["IncidentTypes"];
+    int minCurrent = int.Parse(parameters["MinCurrent"] ?? "-1");
+    int maxCurrent = int.Parse(parameters["MaxCurrent"] ?? "-1");
+    int ground = int.Parse(parameters["MinGround"] ?? "-1");
     float minRatio = float.Parse(parameters["MinRatio"] ?? "-1");
     float maxRatio = float.Parse(parameters["MaxRatio"] ?? "-1");
-    string phase = parameters["Phase"] ?? "";
 
     string faultBin = "";
-    if(minVolt == -1 && maxVolt != -1)
+    if(minCurrent == -1 && maxCurrent != -1)
     {
-        faultBin = $", Fault Bin: > {maxVolt} Volts";
+        faultBin = $", Fault Bin: > {maxCurrent} Amps";
     }
-    else if(minVolt != -1 && maxVolt == -1)
+    else if(minCurrent != -1 && maxCurrent == -1)
     {
-        faultBin = $", Fault Bin:  < {minVolt} Volts";
+        faultBin = $", Fault Bin:  < {minCurrent} Amps";
     }
-    else if(minVolt!= -1 && maxVolt != -1)
+    else if(minCurrent!= -1 && maxCurrent != -1)
     {
-        faultBin = $", Fault Bin: {minVolt} - {maxVolt} Volts";
+        faultBin = $", Fault Bin: {minCurrent} - {maxCurrent} Amps";
     }
 
     string voltBin = "";
@@ -77,8 +75,8 @@
         new[] { "Device", "Meter Name", "text-center" },
         new[] { null, "Fault Type", "text-center valign-middle"},
         new[] { null, "Phase A", "text-center valign-middle" },
+        new[] { null, "Phase C", "text-center valign-middle" },
         new[] { null, "Phase B", "text-center valign-middle" },
-        new[] { null, "Phase c", "text-center valign-middle" },
         new[] { null, "Ground", "text-center valign-middle" },
         new[] { null, "Duration", "text-center valign-middle" },
         new[] { null, "SOE Data", "text-center valign-middle" },
@@ -113,10 +111,10 @@
     <td width="11%" class="text-center valign-middle" data-bind="text: StartTime.formatDate(DateTimeFormat)"></td>
     <td width="11%" class="text-center valign-middle" data-bind="text: Device"></td>
     <td width="11%" class="text-center valign-middle" data-bind="text: FaultType"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="text: PhaseA.toFixed(0)"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="text: PhaseB.toFixed(0)"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="text: PhaseC.toFixed(0)"></td>
-    <td width="11%" class="text-center valign-middle" data-bind="text: Ground.toFixed(0)"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: IAMax.toFixed(0)"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: ICMax.toFixed(0)"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: IBMax.toFixed(0)"></td>
+    <td width="11%" class="text-center valign-middle" data-bind="text: IRMax.toFixed(0)"></td>
     <td width="11%" class="text-center valign-middle" data-bind="text: (Duration/1000*60).toFixed(1)"></td>
     <td width="11%" class="text-center valign-middle" nowrap><button type="button" class="btn btn-danger" data-bind="click: openSOEModal.bind($data)">A</button><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><button type="button" class="btn btn-danger" data-bind="">W</button></td>
 }
@@ -142,7 +140,7 @@
 </div>
 @section Scripts {
     <script>
-        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag, "StartTime", dateRange, "'" + restriction +"'", minVolt, maxVolt, minRatio, maxRatio, "'" + phase + "'"))
+        @Html.Raw(Model.RenderViewModelConfiguration<IncidentEventCycleDataView>(ViewBag, "StartTime", dateRange, "'" + incidentTypes + "'", minCurrent, maxCurrent, ground, minRatio, maxRatio))
 
         $(function () {
             $("#openSOEDialog").modal({ show: false, backdrop: "static", keyboard: false });
@@ -150,7 +148,7 @@
             $("#pageHeader").append("@Html.Raw(MeterFilter().ToString().RemoveDuplicateWhiteSpace().Replace("\r\n", ""))");
             $('#meterfilter').on('keyup', function (e) {
                 if ($('#meterfilter').val().length == 0) {
-                    viewModel.filterText = '%';
+                    viewModel.filterText = "%";
                     viewModel.queryPageRecords();
                 } else {
                     viewModel.filterText = $('#meterfilter').val();

@@ -21,10 +21,9 @@
     //
     //*****************************************************************************************************@
 @using System.Collections.Specialized
-@using System.Xml.Schema
-@using GSF.Data.Model
+@using System.Data
+@using GSF.Data
 @using GSF.Web.Model
-@using SOETools.Model
 @model SOETools.Model.AppModel
 @{
     // DataContext is the "database connection" that is available for the page, you can
@@ -39,50 +38,61 @@
     string dates = (dateRange != -1 ? dateRange.ToString() + " days" : "All Time");
     string dateRestriction = (dateRange != -1 ? $"AND DATEDIFF(day, StartTime, GETDATE()) <= {dateRange}" : "");
     string title = parameters["Title"] ?? "";
-    string restriction = parameters["Restriction"] ?? "";
+    string incidentTypes = parameters["IncidentTypes"] ?? "";
+
+    object[] incidentTypeParams = incidentTypes.Split(',');
+    string formatParams = string.Join(",", incidentTypeParams.Select((obj, index) => $"{{{index}}}"));
+    string incidentTypeRestriction = incidentTypeParams.Any() ? $"AND IncidentType IN ({formatParams})" : "";
+
+    Func<string, string> intersectIncidentTypes = incidentTypeStr =>
+        string.Join(",", incidentTypes.Split(',').Intersect(incidentTypeStr.Split(',')).DefaultIfEmpty("None"));
 
     ViewBag.CustomTitle = "SOE Fault Dashboard";
 
-    int LGCount8001500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 800 AND Vmin < 1500 " + dateRestriction));
-    int LLGCount8001500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 800 AND Vmin < 1500 " + dateRestriction));
-    int LLLGCount8001500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 4 AND Vmin >= 800 AND Vmin < 1500 " + dateRestriction));
-    int LLCount8001500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 800 AND Vmin < 1500 " + dateRestriction));
-    int LLLCount8001500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 800 AND Vmin < 1500 " + dateRestriction));
-    int total8001500 = LGCount8001500 + LLGCount8001500 + LLLGCount8001500 + LLCount8001500 + LLLCount8001500;
-    int Ground6008001500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL AND Vmin >= 800 AND Vmin < 1500 AND Ground > 600 " + dateRestriction));
+    DataTable incidentTable7001500 = dbContext.Connection.RetrieveData($"SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE Imax >= 700 AND Imax < 1500 {incidentTypeRestriction} {dateRestriction} GROUP BY IncidentType", incidentTypeParams);
+    int LGCount7001500 = incidentTable7001500.Select("IncidentType = 'LG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLGCount7001500 = incidentTable7001500.Select("IncidentType = 'LLG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLLGCount7001500 = incidentTable7001500.Select("IncidentType = 'LLLG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLCount7001500 = incidentTable7001500.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLLCount7001500 = incidentTable7001500.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int total7001500 = LGCount7001500 + LLGCount7001500 + LLLGCount7001500 + LLCount7001500 + LLLCount7001500;
+    int Ground6007001500 = dbContext.Connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM IncidentEventCycleDataView WHERE Imax >= 700 AND Imax < 1500 AND IRMax > 600 {incidentTypeRestriction} {dateRestriction}", incidentTypeParams);
 
-    int LGCount15003000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 1500 AND Vmin < 3000 " + dateRestriction));
-    int LLGCount15003000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 1500 AND Vmin < 3000 " + dateRestriction));
-    int LLLGCount15003000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 4 AND Vmin >= 1500 AND Vmin < 3000 " + dateRestriction));
-    int LLCount15003000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 1500 AND Vmin < 3000 " + dateRestriction));
-    int LLLCount15003000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 1500 AND Vmin < 3000 " + dateRestriction));
+    DataTable incidentTable15003000 = dbContext.Connection.RetrieveData($"SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE Imax >= 1500 AND Imax < 3000 {incidentTypeRestriction} {dateRestriction} GROUP BY IncidentType", incidentTypeParams);
+    int LGCount15003000 = incidentTable15003000.Select("IncidentType = 'LG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLGCount15003000 = incidentTable15003000.Select("IncidentType = 'LLG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLLGCount15003000 = incidentTable15003000.Select("IncidentType = 'LLLG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLCount15003000 = incidentTable15003000.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLLCount15003000 = incidentTable15003000.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
     int total15003000 = LGCount15003000 + LLGCount15003000 + LLLGCount15003000 + LLCount15003000 + LLLCount15003000;
-    int Ground60015003000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL AND Vmin >= 1500 AND Vmin < 3000 AND Ground > 600 " + dateRestriction));
+    int Ground60015003000 = dbContext.Connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM IncidentEventCycleDataView WHERE Imax >= 1500 AND Imax < 3000 AND IRMax > 600 {incidentTypeRestriction} {dateRestriction}", incidentTypeParams);
 
-    int LGCount30004500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 3000 AND Vmin < 4500 " + dateRestriction));
-    int LLGCount30004500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 3000 AND Vmin < 4500 " + dateRestriction));
-    int LLLGCount30004500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 4 AND Vmin >= 3000 AND Vmin < 4500 " + dateRestriction));
-    int LLCount30004500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 3000 AND Vmin < 4500 " + dateRestriction));
-    int LLLCount30004500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 3000 AND Vmin < 4500 " + dateRestriction));
+    DataTable incidentTable30004500 = dbContext.Connection.RetrieveData($"SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE Imax >= 3000 AND Imax < 4500 {incidentTypeRestriction} {dateRestriction} GROUP BY IncidentType", incidentTypeParams);
+    int LGCount30004500 = incidentTable30004500.Select("IncidentType = 'LG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLGCount30004500 = incidentTable30004500.Select("IncidentType = 'LLG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLLGCount30004500 = incidentTable30004500.Select("IncidentType = 'LLLG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLCount30004500 = incidentTable30004500.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLLCount30004500 = incidentTable30004500.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
     int total30004500 = LGCount30004500 + LLGCount30004500 + LLLGCount30004500 + LLCount30004500 + LLLCount30004500;
-    int Ground60030004500 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL AND Vmin >= 3000 AND Vmin < 4500 AND Ground > 600 " + dateRestriction));
+    int Ground60030004500 = dbContext.Connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM IncidentEventCycleDataView WHERE Imax >= 3000 AND Imax < 4500 AND IRMax > 600 {incidentTypeRestriction} {dateRestriction}", incidentTypeParams);
 
-    int LGCount45006000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 4500 AND Vmin < 6000 " + dateRestriction));
-    int LLGCount45006000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 4500 AND Vmin < 6000 " + dateRestriction));
-    int LLLGCount45006000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 4 AND Vmin >= 4500 AND Vmin < 6000 " + dateRestriction));
-    int LLCount45006000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 4500 AND Vmin < 6000 " + dateRestriction));
-    int LLLCount45006000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 4500 AND Vmin < 6000 " + dateRestriction));
+    DataTable incidentTable45006000 = dbContext.Connection.RetrieveData($"SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE Imax >= 4500 AND Imax < 6000 {incidentTypeRestriction} {dateRestriction} GROUP BY IncidentType", incidentTypeParams);
+    int LGCount45006000 = incidentTable45006000.Select("IncidentType = 'LG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLGCount45006000 = incidentTable45006000.Select("IncidentType = 'LLG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLLGCount45006000 = incidentTable45006000.Select("IncidentType = 'LLLG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLCount45006000 = incidentTable45006000.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLLCount45006000 = incidentTable45006000.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
     int total45006000 = LGCount45006000 + LLGCount45006000 + LLLGCount45006000 + LLCount45006000 + LLLCount45006000;
-    int Ground60045006000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL AND Vmin >= 4500 AND Vmin < 6000 AND Ground > 600 " + dateRestriction));
+    int Ground60045006000 = dbContext.Connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM IncidentEventCycleDataView WHERE Imax >= 4500 AND Imax < 6000 AND IRMax > 600 {incidentTypeRestriction} {dateRestriction}", incidentTypeParams);
 
-    int LGCount6000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 6000 " + dateRestriction));
-    int LLGCount6000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 6000 " + dateRestriction));
-    int LLLGCount6000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND LEN(FaultType) = 4 AND Vmin >= 6000 " + dateRestriction));
-    int LLCount6000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 2 AND Vmin >= 6000 " + dateRestriction));
-    int LLLCount6000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 3 AND Vmin >= 6000 " + dateRestriction));
+    DataTable incidentTable6000 = dbContext.Connection.RetrieveData($"SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE Imax >= 6000 {incidentTypeRestriction} {dateRestriction} GROUP BY IncidentType", incidentTypeParams);
+    int LGCount6000 = incidentTable6000.Select("IncidentType = 'LG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLGCount6000 = incidentTable6000.Select("IncidentType = 'LLG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLLGCount6000 = incidentTable6000.Select("IncidentType = 'LLLG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLCount6000 = incidentTable6000.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+    int LLLCount6000 = incidentTable6000.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
     int total6000 = LGCount6000 + LLGCount6000 + LLLGCount6000 + LLCount6000 + LLLCount6000;
-    int Ground6006000 = dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL AND Vmin >= 6000 AND Ground > 600 " + dateRestriction));
-
+    int Ground6006000 = dbContext.Connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM IncidentEventCycleDataView WHERE Imax >= 6000 AND IRMax > 600 {incidentTypeRestriction} {dateRestriction}", incidentTypeParams);
 
 }
 @section StyleSheets {
@@ -117,69 +127,69 @@
         </tr>
 
         <tr>
-            <td>&nbsp;&nbsp;800&nbsp;-&nbsp;1,500</td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-G Fault&Restriction=FaultTypeLG&MinVolt=800&MaxVolt=1500")">@LGCount8001500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-G Fault&Restriction=FaultTypeLLG&MinVolt=800&MaxVolt=1500")">@LLGCount8001500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L-G Fault&Restriction=FaultTypeLLLG&MinVolt=800&MaxVolt=1500")">@LLLGCount8001500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L Fault&Restriction=FaultTypeLL&MinVolt=800&MaxVolt=1500")">@LLCount8001500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L Fault&Restriction=FaultTypeLLL&MinVolt=800&MaxVolt=1500")">@LLLCount8001500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Phase Total&Restriction=FaultTypePhaseTotal&MinVolt=800&MaxVolt=1500")">@total8001500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Ground > 600A&Restriction=FaultTypeGround&MinVolt=800&MaxVolt=1500")">@Ground6008001500</a></td>
+            <td>&nbsp;&nbsp;700&nbsp;-&nbsp;1,500</td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-G Fault&IncidentTypes={intersectIncidentTypes("LG")}&MinCurrent=700&MaxCurrent=1500")">@LGCount7001500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLG")}&MinCurrent=700&MaxCurrent=1500")">@LLGCount7001500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLLG")}&MinCurrent=700&MaxCurrent=1500")">@LLLGCount7001500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L Fault&IncidentTypes={intersectIncidentTypes("LL")}&MinCurrent=700&MaxCurrent=1500")">@LLCount7001500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L Fault&IncidentTypes={intersectIncidentTypes("LLL")}&MinCurrent=700&MaxCurrent=1500")">@LLLCount7001500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Phase Total&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MinCurrent=700&MaxCurrent=1500")">@total7001500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MinCurrent=700&MaxCurrent=1500&MinGround=600")">@Ground6007001500</a></td>
 
         </tr>
         <tr>
             <td>&nbsp;&nbsp;1,500&nbsp;-&nbsp;3,000</td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-G Fault&Restriction=FaultTypeLG&MinVolt=1500&MaxVolt=3000")">@LGCount15003000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-G Fault&Restriction=FaultTypeLLG&MinVolt=1500&MaxVolt=3000")">@LLGCount15003000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L-G Fault&Restriction=FaultTypeLLLG&MinVolt=1500&MaxVolt=3000")">@LLLGCount15003000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L Fault&Restriction=FaultTypeLL&MinVolt=1500&MaxVolt=3000")">@LLCount15003000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L Fault&Restriction=FaultTypeLLL&MinVolt=1500&MaxVolt=3000")">@LLLCount15003000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Phase Total&Restriction=FaultTypePhaseTotal&MinVolt=1500&MaxVolt=3000")">@total15003000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Ground > 600A&Restriction=FaultTypeGround&MinVolt=1500&MaxVolt=3000")">@Ground60015003000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-G Fault&IncidentTypes={intersectIncidentTypes("LG")}&MinCurrent=1500&MaxCurrent=3000")">@LGCount15003000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLG")}&MinCurrent=1500&MaxCurrent=3000")">@LLGCount15003000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLLG")}&MinCurrent=1500&MaxCurrent=3000")">@LLLGCount15003000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L Fault&IncidentTypes={intersectIncidentTypes("LL")}&MinCurrent=1500&MaxCurrent=3000")">@LLCount15003000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L Fault&IncidentTypes={intersectIncidentTypes("LLL")}&MinCurrent=1500&MaxCurrent=3000")">@LLLCount15003000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Phase Total&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MinCurrent=1500&MaxCurrent=3000")">@total15003000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MinCurrent=1500&MaxCurrent=3000&MinGround=600")">@Ground60015003000</a></td>
 
         </tr>
         <tr>
             <td>&nbsp;&nbsp;3,000&nbsp;-&nbsp;4,500</td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-G Fault&Restriction=FaultTypeLG&MinVolt=3000&MaxVolt=4500")">@LGCount30004500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-G Fault&Restriction=FaultTypeLLG&MinVolt=3000&MaxVolt=4500")">@LLGCount30004500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L-G Fault&Restriction=FaultTypeLLLG&MinVolt=3000&MaxVolt=4500")">@LLLGCount30004500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L Fault&Restriction=FaultTypeLL&MinVolt=3000&MaxVolt=4500")">@LLCount30004500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L Fault&Restriction=FaultTypeLLL&MinVolt=3000&MaxVolt=4500")">@LLLCount30004500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Phase Total&Restriction=FaultTypePhaseTotal&MinVolt=3000&MaxVolt=4500")">@total30004500</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Ground > 600A&Restriction=FaultTypeGround&MinVolt=3000&MaxVolt=4500")">@Ground60030004500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-G Fault&IncidentTypes={intersectIncidentTypes("LG")}&MinCurrent=3000&MaxCurrent=4500")">@LGCount30004500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLG")}&MinCurrent=3000&MaxCurrent=4500")">@LLGCount30004500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLLG")}&MinCurrent=3000&MaxCurrent=4500")">@LLLGCount30004500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L Fault&IncidentTypes={intersectIncidentTypes("LL")}&MinCurrent=3000&MaxCurrent=4500")">@LLCount30004500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L Fault&IncidentTypes={intersectIncidentTypes("LLL")}&MinCurrent=3000&MaxCurrent=4500")">@LLLCount30004500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Phase Total&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MinCurrent=3000&MaxCurrent=4500")">@total30004500</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MinCurrent=3000&MaxCurrent=4500&MinGround=600")">@Ground60030004500</a></td>
 
         </tr>
         <tr>
             <td>&nbsp;&nbsp;4,500&nbsp;-&nbsp;6,000</td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-G Fault&Restriction=FaultTypeLG&MinVolt=4500&MaxVolt=6000")">@LGCount45006000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-G Fault&Restriction=FaultTypeLLG&MinVolt=4500&MaxVolt=6000")">@LLGCount45006000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L-G Fault&Restriction=FaultTypeLLLG&MinVolt=4500&MaxVolt=6000")">@LLLGCount45006000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L Fault&Restriction=FaultTypeLL&MinVolt=4500&MaxVolt=6000")">@LLCount45006000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L Fault&Restriction=FaultTypeLLL&MinVolt=4500&MaxVolt=6000")">@LLLCount45006000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Phase Total&Restriction=FaultTypePhaseTotal&MinVolt=4500&MaxVolt=6000")">@total45006000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Ground > 600A&Restriction=FaultTypeGround&MinVolt=4500&MaxVolt=6000")">@Ground60045006000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-G Fault&IncidentTypes={intersectIncidentTypes("LG")}&MinCurrent=4500&MaxCurrent=6000")">@LGCount45006000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLG")}&MinCurrent=4500&MaxCurrent=6000")">@LLGCount45006000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLLG")}&MinCurrent=4500&MaxCurrent=6000")">@LLLGCount45006000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L Fault&IncidentTypes={intersectIncidentTypes("LL")}&MinCurrent=4500&MaxCurrent=6000")">@LLCount45006000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L Fault&IncidentTypes={intersectIncidentTypes("LLL")}&MinCurrent=4500&MaxCurrent=6000")">@LLLCount45006000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Phase Total&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MinCurrent=4500&MaxCurrent=6000")">@total45006000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MinCurrent=4500&MaxCurrent=6000&MinGround=600")">@Ground60045006000</a></td>
         </tr>
         <tr>
             <td>&nbsp;&nbsp;>&nbsp;6,000</td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-G Fault&Restriction=FaultTypeLG&MaxVolt=6000")">@LGCount6000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-G Fault&Restriction=FaultTypeLLG&MaxVolt=6000")">@LLGCount6000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L-G Fault&Restriction=FaultTypeLLLG&MaxVolt=6000")">@LLLGCount6000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L Fault&Restriction=FaultTypeLL&MaxVolt=6000")">@LLCount6000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L Fault&Restriction=FaultTypeLLL&MaxVolt=6000")">@LLLCount6000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Phase Total&Restriction=FaultTypePhaseTotal&MaxVolt=6000")">@total6000</a></td>
-            <td><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Ground > 600A&Restriction=FaultTypeGround&MaxVolt=6000")">@Ground6006000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-G Fault&IncidentTypes={intersectIncidentTypes("LG")}&MaxCurrent=6000")">@LGCount6000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLG")}&MaxCurrent=6000")">@LLGCount6000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLLG")}&MaxCurrent=6000")">@LLLGCount6000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L Fault&IncidentTypes={intersectIncidentTypes("LL")}&MaxCurrent=6000")">@LLCount6000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L Fault&IncidentTypes={intersectIncidentTypes("LLL")}&MaxCurrent=6000")">@LLLCount6000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Phase Total&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MaxCurrent=6000")">@total6000</a></td>
+            <td><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MaxCurrent=6000&MinGround=600")">@Ground6006000</a></td>
 
         </tr>
 
         <tr >
             <td style="border-top: 1px solid black;">Total</td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-G Fault&Restriction=FaultTypeLG")">@Html.Raw(LGCount8001500 + LGCount15003000 + LGCount30004500 + LGCount45006000 + LGCount6000)</a></td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-G Fault&Restriction=FaultTypeLLG")">@Html.Raw(LLGCount8001500 + LLGCount15003000 + LLGCount30004500+ LLGCount45006000+ LLGCount6000)</a></td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L-G Fault&Restriction=FaultTypeLLLG")">@Html.Raw(LLLGCount8001500 + LLLGCount15003000 + LLLGCount30004500 + LLLGCount45006000 + LLLGCount6000)</a></td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L Fault&Restriction=FaultTypeLL")">@Html.Raw(LLCount8001500 + LLCount15003000 + LLCount30004500 + LLCount45006000 + LLCount6000)</a></td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - L-L-L Fault&Restriction=FaultTypeLLL")">@Html.Raw(LLLCount8001500 + LLLCount15003000 + LLLCount30004500 + LLLCount45006000 + LLLCount6000)</a></td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Phase Total&Restriction=FaultTypePhaseTotal")">@Html.Raw(total8001500 + total15003000 + total30004500 + total45006000 + total6000)</a></td>
-            <td style="border-top: 1px solid black;"><a href="@Url.Content("~/Main/IncidentEventCycleDataView/?DateRange="+dateRange+"&Title=SOE Fault Summary - Ground > 600A&Restriction=FaultTypeGround")">@Html.Raw(Ground6008001500 + Ground60015003000 + Ground60030004500 + Ground60045006000 + Ground6006000)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-G Fault&IncidentTypes={intersectIncidentTypes("LG")}")">@Html.Raw(LGCount7001500 + LGCount15003000 + LGCount30004500 + LGCount45006000 + LGCount6000)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLG")}")">@Html.Raw(LLGCount7001500 + LLGCount15003000 + LLGCount30004500+ LLGCount45006000+ LLGCount6000)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L-G Fault&IncidentTypes={intersectIncidentTypes("LLLG")}")">@Html.Raw(LLLGCount7001500 + LLLGCount15003000 + LLLGCount30004500 + LLLGCount45006000 + LLLGCount6000)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L Fault&IncidentTypes={intersectIncidentTypes("LL")}")">@Html.Raw(LLCount7001500 + LLCount15003000 + LLCount30004500 + LLCount45006000 + LLCount6000)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - L-L-L Fault&IncidentTypes={intersectIncidentTypes("LLL")}")">@Html.Raw(LLLCount7001500 + LLLCount15003000 + LLLCount30004500 + LLLCount45006000 + LLLCount6000)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Phase Total&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}")">@Html.Raw(total7001500 + total15003000 + total30004500 + total45006000 + total6000)</a></td>
+            <td style="border-top: 1px solid black;"><a href="@Url.Content($"~/Main/IncidentEventCycleDataView/?DateRange={dateRange}&Title=SOE Fault Summary - Ground > 600A&IncidentTypes={intersectIncidentTypes("LG,LLG,LLLG,LL,LLL")}&MinGround=600")">@Html.Raw(Ground6007001500 + Ground60015003000 + Ground60030004500 + Ground60045006000 + Ground6006000)</a></td>
 
         </tr>
     </table>

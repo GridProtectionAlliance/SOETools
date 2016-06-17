@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using GSF.Data.Model;
 
 namespace SOETools.Model
@@ -17,13 +14,14 @@ namespace SOETools.Model
         public DateTime StartTime { get; set; }
 
         [Label("Phase A")]
-        public float PhaseA { get; set; }
+        public float IAMax { get; set; }
         [Label("Phase C")]
-        public float PhaseC { get; set; }
+        public float ICMax { get; set; }
         [Label("Phase B")]
-        public float PhaseB { get; set; }
+        public float IBMax { get; set; }
 
-        public float Ground { get; set; }
+        [Label("Ground")]
+        public float IRMax { get; set; }
 
         public float Duration { get; set; }
 

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Web.Mvc;
+using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
 using GSF.Web.Security;
@@ -103,16 +104,18 @@ namespace SOETools.Controllers
         {
             m_appModel.ConfigureView(Url.RequestContext, "Home", ViewBag);
             int groupID = m_dataContext.Connection.ExecuteScalar<int?>("Select ID From ValueListGroup Where Name = 'timeWindows'") ?? 0;
+            DataTable incidentCountTable = m_dbContext.Connection.RetrieveData("SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView GROUP BY IncidentType");
+
             ViewBag.timeWindows = m_dataContext.Table<ValueList>().QueryRecords(restriction: new RecordRestriction("GroupID = {0}", groupID)).ToArray();
-            ViewBag.SOESAD = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount();
-            ViewBag.FaultsAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL"));
-            ViewBag.FaultsLGAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N'"));
-            ViewBag.FaultsLLAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 2"));
-            ViewBag.FaultsLLLAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 3"));
-            ViewBag.VoltsAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL"));
-            ViewBag.VoltSAGAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("(Vmin / NominalVoltage) <= 0.9 AND FaultType IS NULL"));
-            ViewBag.VoltSWELLAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("(Vmin / NominalVoltage) >= 1.1 AND FaultType IS NULL"));
-            ViewBag.OtherAT = m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL"));
+            ViewBag.SOESAD = incidentCountTable.AsEnumerable().Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            ViewBag.FaultsAT = incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG', 'LL', 'LLL')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            ViewBag.FaultsLGAT = incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            ViewBag.FaultsLLAT = incidentCountTable.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            ViewBag.FaultsLLLAT = incidentCountTable.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            ViewBag.VoltsAT = incidentCountTable.Select("IncidentType LIKE '%SAG' OR IncidentType LIKE '%SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            ViewBag.VoltSAGAT = incidentCountTable.Select("IncidentType LIKE '%SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            ViewBag.VoltSWELLAT = incidentCountTable.Select("IncidentType LIKE '%SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            ViewBag.OtherAT = incidentCountTable.Select("IncidentType = 'OTHER'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
 
             List<int> counts = new List<int>();
             List<int> faults = new List<int>();
@@ -126,15 +129,16 @@ namespace SOETools.Controllers
 
             foreach (ValueList vl in ViewBag.timeWindows)
             {
-                counts.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
-                faults.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType IS NOT NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
-                faultsLG.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType LIKE '%N' AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
-                faultsLL.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 2 AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
-                faultsLLL.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("FaultType NOT LIKE '%N' AND LEN(FaultType) = 3 AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
-                volts.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) <= 0.9 OR (Vmin / NominalVoltage) >= 1.1 ) AND FaultType IS NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
-                voltsags.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("(Vmin / NominalVoltage) <= 0.9 AND FaultType IS NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
-                voltswells.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("(Vmin / NominalVoltage) >= 1.1 AND FaultType IS NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
-                others.Add(m_dbContext.Table<IncidentEventCycleDataView>().QueryRecordCount(new RecordRestriction("((Vmin / NominalVoltage) > 0.9 AND (Vmin / NominalVoltage) < 1.1 ) AND FaultType IS NULL AND DATEDIFF(day, StartTime, GETDATE()) <= {0}", vl.Value)));
+                incidentCountTable = m_dbContext.Connection.RetrieveData("SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE DATEDIFF(day, StartTime, GETDATE()) <= {0} GROUP BY IncidentType", vl.Value);
+                counts.Add(incidentCountTable.AsEnumerable().Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+                faults.Add(incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG', 'LL', 'LLL')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+                faultsLG.Add(incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+                faultsLL.Add(incidentCountTable.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+                faultsLLL.Add(incidentCountTable.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+                volts.Add(incidentCountTable.Select("IncidentType IN ('SAG', 'SWELL')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+                voltsags.Add(incidentCountTable.Select("IncidentType = 'SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+                voltswells.Add(incidentCountTable.Select("IncidentType = 'SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+                others.Add(incidentCountTable.Select("IncidentType = 'OTHER'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
             }
 
 
