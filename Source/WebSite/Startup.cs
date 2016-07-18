@@ -24,7 +24,10 @@
 using GSF.Web.Model;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
+using Microsoft.Owin;
 using Owin;
+
+[assembly: OwinStartup(typeof(SOETools.Startup))]
 
 namespace SOETools
 {
