@@ -87,7 +87,11 @@ namespace SOETools
                 try
                 {
                     if (disposing)
+                    {
                         m_dataContext?.Dispose();
+                        m_coreContext?.Dispose();
+                        m_dbContext?.Dispose();
+                    }
                 }
                 finally
                 {

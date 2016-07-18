@@ -136,7 +136,10 @@ namespace SOETools.Model
                 try
                 {
                     if (disposing)
+                    {
                         m_securityDataContext?.Dispose();
+                        m_dbDataContext?.Dispose();
+                    }
                 }
                 finally
                 {
