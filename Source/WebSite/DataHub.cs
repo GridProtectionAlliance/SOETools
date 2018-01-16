@@ -281,6 +281,33 @@ namespace SOETools
             return m_dbContext.Table<CycleDataSOEPointView>().QueryRecords(sortField, ascending, page, pageSize, new RecordRestriction("IncidentID = {0}", parentID));
         }
 
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.DeleteRecord)]
+        public void DeleteCycleDataSOEPointView(int id)
+        {
+            m_coreContext.Table<CycleDataSOEPointView>().DeleteRecord(id);
+        }
+
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.CreateNewRecord)]
+        public CycleDataSOEPointView NewCycleDataSOEPointView()
+        {
+            return new CycleDataSOEPointView();
+        }
+
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.AddNewRecord)]
+        public void AddNewCycleDataSOEPointView(CycleDataSOEPointView record)
+        {
+            m_coreContext.Table<CycleDataSOEPointView>().AddNewRecord(record);
+        }
+
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(CycleDataSOEPointView), RecordOperation.UpdateRecord)]
+        public void UpdateCycleDataSOEPointView(CycleDataSOEPointView record)
+        {
+            m_coreContext.Table<CycleDataSOEPointView>().UpdateRecord(record);
+        }
 
 
 
@@ -437,6 +464,33 @@ namespace SOETools
             return m_dbContext.Table<IncidentEventCycleDataView>().QueryRecords(sortField, ascending, page, pageSize);
         }
 
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.DeleteRecord)]
+        public void DeleteIncidentEventCycleDataView(int id)
+        {
+            m_coreContext.Table<IncidentEventCycleDataView>().DeleteRecord(id);
+        }
+
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.CreateNewRecord)]
+        public IncidentEventCycleDataView NewIncidentEventCycleDataView()
+        {
+            return new IncidentEventCycleDataView();
+        }
+
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.AddNewRecord)]
+        public void AddNewIncidentEventCycleDataView(IncidentEventCycleDataView record)
+        {
+            m_coreContext.Table<IncidentEventCycleDataView>().AddNewRecord(record);
+        }
+
+        [AuthorizeHubRole("Administrator")]
+        [RecordOperation(typeof(IncidentEventCycleDataView), RecordOperation.UpdateRecord)]
+        public void UpdateIncidentEventCycleDataView(IncidentEventCycleDataView record)
+        {
+            m_coreContext.Table<IncidentEventCycleDataView>().UpdateRecord(record);
+        }
         #endregion
 
         #region [ Page Table Operations ]

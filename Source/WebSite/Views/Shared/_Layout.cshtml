@@ -120,6 +120,7 @@
     @Styles.Render("~/css.bundle/bootstrap")
     @Styles.Render("~/css.bundle/jqueryui")
     @Styles.Render("~/css.bundle/primeui")
+    @Styles.Render("~/css/daterangepicker")
     @Styles.Render("~/css.bundle/site")
     @RenderSection("StyleSheets", false)
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -148,7 +149,12 @@
     <meta name="msapplication-square150x150logo" content="~/Images/Icons/mstile-150x150.png" />
     <meta name="msapplication-wide310x150logo" content="~/Images/Icons/mstile-310x150.png" />
     <meta name="msapplication-square310x310logo" content="~/Images/Icons/mstile-310x310.png" />
+
+    @Scripts.Render("~/js/react")
     @Scripts.Render("~/js.bundle/modernizr")
+    @Scripts.Render("~/js/daterangepicker")
+    @Scripts.Render("~/jsx/components")
+
     <script>
         const DateFormat = "@Model.Global.DateFormat";
         const TimeFormat = "@Model.Global.TimeFormat";

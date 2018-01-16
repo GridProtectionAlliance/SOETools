@@ -104,53 +104,53 @@ namespace SOETools.Controllers
         {
             m_appModel.ConfigureView(Url.RequestContext, "Home", ViewBag);
             int groupID = m_dataContext.Connection.ExecuteScalar<int?>("Select ID From ValueListGroup Where Name = 'timeWindows'") ?? 0;
-            DataTable incidentCountTable = m_dbContext.Connection.RetrieveData("SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView GROUP BY IncidentType");
+            //DataTable incidentCountTable = m_dbContext.Connection.RetrieveData("SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView GROUP BY IncidentType");
 
             ViewBag.timeWindows = m_dataContext.Table<ValueList>().QueryRecords(restriction: new RecordRestriction("GroupID = {0}", groupID)).ToArray();
-            ViewBag.SOESAD = incidentCountTable.AsEnumerable().Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
-            ViewBag.FaultsAT = incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG', 'LL', 'LLL')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
-            ViewBag.FaultsLGAT = incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
-            ViewBag.FaultsLLAT = incidentCountTable.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
-            ViewBag.FaultsLLLAT = incidentCountTable.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
-            ViewBag.VoltsAT = incidentCountTable.Select("IncidentType LIKE '%SAG' OR IncidentType LIKE '%SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
-            ViewBag.VoltSAGAT = incidentCountTable.Select("IncidentType LIKE '%SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
-            ViewBag.VoltSWELLAT = incidentCountTable.Select("IncidentType LIKE '%SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
-            ViewBag.OtherAT = incidentCountTable.Select("IncidentType = 'OTHER'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            //ViewBag.SOESAD = incidentCountTable.AsEnumerable().Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            //ViewBag.FaultsAT = incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG', 'LL', 'LLL')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            //ViewBag.FaultsLGAT = incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            //ViewBag.FaultsLLAT = incidentCountTable.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            //ViewBag.FaultsLLLAT = incidentCountTable.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            //ViewBag.VoltsAT = incidentCountTable.Select("IncidentType LIKE '%SAG' OR IncidentType LIKE '%SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            //ViewBag.VoltSAGAT = incidentCountTable.Select("IncidentType LIKE '%SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            //ViewBag.VoltSWELLAT = incidentCountTable.Select("IncidentType LIKE '%SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
+            //ViewBag.OtherAT = incidentCountTable.Select("IncidentType = 'OTHER'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum();
 
-            List<int> counts = new List<int>();
-            List<int> faults = new List<int>();
-            List<int> faultsLG = new List<int>();
-            List<int> faultsLL = new List<int>();
-            List<int> faultsLLL = new List<int>();
-            List<int> volts = new List<int>();
-            List<int> others = new List<int>();
-            List<int> voltsags = new List<int>();
-            List<int> voltswells = new List<int>();
+            //List<int> counts = new List<int>();
+            //List<int> faults = new List<int>();
+            //List<int> faultsLG = new List<int>();
+            //List<int> faultsLL = new List<int>();
+            //List<int> faultsLLL = new List<int>();
+            //List<int> volts = new List<int>();
+            //List<int> others = new List<int>();
+            //List<int> voltsags = new List<int>();
+            //List<int> voltswells = new List<int>();
 
-            foreach (ValueList vl in ViewBag.timeWindows)
-            {
-                incidentCountTable = m_dbContext.Connection.RetrieveData("SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE DATEDIFF(day, StartTime, GETDATE()) <= {0} GROUP BY IncidentType", vl.Value);
-                counts.Add(incidentCountTable.AsEnumerable().Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
-                faults.Add(incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG', 'LL', 'LLL')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
-                faultsLG.Add(incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
-                faultsLL.Add(incidentCountTable.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
-                faultsLLL.Add(incidentCountTable.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
-                volts.Add(incidentCountTable.Select("IncidentType IN ('SAG', 'SWELL')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
-                voltsags.Add(incidentCountTable.Select("IncidentType = 'SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
-                voltswells.Add(incidentCountTable.Select("IncidentType = 'SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
-                others.Add(incidentCountTable.Select("IncidentType = 'OTHER'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
-            }
+            //foreach (ValueList vl in ViewBag.timeWindows)
+            //{
+            //    incidentCountTable = m_dbContext.Connection.RetrieveData("SELECT IncidentType, COUNT(*) AS IncidentCount FROM IncidentEventCycleDataView WHERE DATEDIFF(day, StartTime, GETDATE()) <= {0} GROUP BY IncidentType", vl.Value);
+            //    counts.Add(incidentCountTable.AsEnumerable().Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+            //    faults.Add(incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG', 'LL', 'LLL')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+            //    faultsLG.Add(incidentCountTable.Select("IncidentType IN ('LG', 'LLG', 'LLLG')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+            //    faultsLL.Add(incidentCountTable.Select("IncidentType = 'LL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+            //    faultsLLL.Add(incidentCountTable.Select("IncidentType = 'LLL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+            //    volts.Add(incidentCountTable.Select("IncidentType IN ('SAG', 'SWELL')").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+            //    voltsags.Add(incidentCountTable.Select("IncidentType = 'SAG'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+            //    voltswells.Add(incidentCountTable.Select("IncidentType = 'SWELL'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+            //    others.Add(incidentCountTable.Select("IncidentType = 'OTHER'").Select(row => row.ConvertField<int>("IncidentCount")).DefaultIfEmpty(0).Sum());
+            //}
 
 
-            ViewBag.counts = counts;
-            ViewBag.faults = faults;
-            ViewBag.faultsLG = faultsLG;
-            ViewBag.faultsLL = faultsLL;
-            ViewBag.faultsLLL = faultsLLL;
-            ViewBag.volts = volts;
-            ViewBag.others = others;
-            ViewBag.voltsags = voltsags;
-            ViewBag.voltswells = voltswells;
+            //ViewBag.counts = counts;
+            //ViewBag.faults = faults;
+            //ViewBag.faultsLG = faultsLG;
+            //ViewBag.faultsLL = faultsLL;
+            //ViewBag.faultsLLL = faultsLLL;
+            //ViewBag.volts = volts;
+            //ViewBag.others = others;
+            //ViewBag.voltsags = voltsags;
+            //ViewBag.voltswells = voltswells;
 
             return View();
         }

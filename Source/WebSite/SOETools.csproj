@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.1.0.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -34,6 +35,19 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TypeScriptTarget>ES6</TypeScriptTarget>
+    <TypeScriptJSXEmit>React</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -50,6 +64,10 @@
     </Reference>
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ClearScript, Version=5.4.9.0, Culture=neutral, PublicKeyToken=935d0c957da47c73, processorArchitecture=MSIL">
+      <HintPath>..\packages\JavaScriptEngineSwitcher.V8.2.4.2\lib\net45\ClearScript.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ExpressionEvaluator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=90d9f15d622e2348, processorArchitecture=MSIL">
@@ -70,6 +88,26 @@
     </Reference>
     <Reference Include="GSF.Web, Version=2.1.300.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GSF.Web.2.1.300-beta\lib\net46\GSF.Web.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="JavaScriptEngineSwitcher.ChakraCore, Version=2.4.8.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
+      <HintPath>..\packages\JavaScriptEngineSwitcher.ChakraCore.2.4.8\lib\net45\JavaScriptEngineSwitcher.ChakraCore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="JavaScriptEngineSwitcher.Core, Version=2.4.9.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
+      <HintPath>..\packages\JavaScriptEngineSwitcher.Core.2.4.9\lib\net45\JavaScriptEngineSwitcher.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="JavaScriptEngineSwitcher.Msie, Version=2.4.9.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
+      <HintPath>..\packages\JavaScriptEngineSwitcher.Msie.2.4.9\lib\net45\JavaScriptEngineSwitcher.Msie.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="JavaScriptEngineSwitcher.V8, Version=2.4.2.0, Culture=neutral, PublicKeyToken=c608b2a8cc9e4472, processorArchitecture=MSIL">
+      <HintPath>..\packages\JavaScriptEngineSwitcher.V8.2.4.2\lib\net45\JavaScriptEngineSwitcher.V8.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="JSPool, Version=3.0.1.0, Culture=neutral, PublicKeyToken=2fc7775f73072640, processorArchitecture=MSIL">
+      <HintPath>..\packages\JSPool.3.0.1\lib\net451\JSPool.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.DataProtection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
@@ -105,8 +143,12 @@
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="MsieJavaScriptEngine, Version=2.2.2.0, Culture=neutral, PublicKeyToken=a3a2846a37ac0d3e, processorArchitecture=MSIL">
+      <HintPath>..\packages\MsieJavaScriptEngine.2.2.2\lib\net45\MsieJavaScriptEngine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
@@ -115,6 +157,18 @@
     </Reference>
     <Reference Include="RazorEngine, Version=3.7.7.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
       <HintPath>..\packages\RazorEngine.3.7.7\lib\net45\RazorEngine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="React.Core, Version=3.2.0.0, Culture=neutral, PublicKeyToken=9aed67b161f7db78, processorArchitecture=MSIL">
+      <HintPath>..\packages\React.Core.3.2.0\lib\net40\React.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="React.Web, Version=3.2.0.0, Culture=neutral, PublicKeyToken=9aed67b161f7db78, processorArchitecture=MSIL">
+      <HintPath>..\packages\React.Web.3.2.0\lib\net40\React.Web.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="React.Web.Mvc4, Version=3.2.0.0, Culture=neutral, PublicKeyToken=9aed67b161f7db78, processorArchitecture=MSIL">
+      <HintPath>..\packages\React.Web.Mvc4.3.2.0\lib\net40\React.Web.Mvc4.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -141,6 +195,7 @@
       <HintPath>..\packages\System.Net.Http.2.0.20126.16343\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -161,6 +216,10 @@
     </Reference>
     <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Optimization.React, Version=3.2.0.0, Culture=neutral, PublicKeyToken=9aed67b161f7db78, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Web.Optimization.React.3.2.0\lib\net40\System.Web.Optimization.React.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -191,6 +250,14 @@
     <Reference Include="System.Web.Optimization">
       <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
     </Reference>
+    <Reference Include="VroomJs, Version=1.2.3.0, Culture=neutral, PublicKeyToken=e7c52e67fcb0044f, processorArchitecture=MSIL">
+      <HintPath>..\packages\VroomJs.1.2.3\lib\net45\VroomJs.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="WebActivatorEx, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebActivatorEx.2.2.0\lib\net40\WebActivatorEx.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="WebGrease, Version=1.6.5135.21930, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
       <Private>True</Private>
@@ -199,6 +266,7 @@
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\ReactConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\MainController.cs" />
@@ -231,7 +299,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-datepicker3.css" />
-    <Content Include="Content\bootstrap-datepicker3.min.css" />
     <Content Include="Content\bootstrap-theme-cerulean.css" />
     <Content Include="Content\bootstrap-theme-cosmo.css" />
     <Content Include="Content\bootstrap-theme-cyborg.css" />
@@ -243,9 +310,9 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\daterangepicker.css" />
     <Content Include="Content\fileinput.css" />
     <Content Include="Content\font-awesome.css" />
-    <Content Include="Content\font-awesome.min.css" />
     <Content Include="Content\FontAwesome\css\font-awesome.css" />
     <Content Include="Content\FontAwesome\css\font-awesome.min.css" />
     <Content Include="Content\FontAwesome\fonts\fontawesome-webfont.svg" />
@@ -265,7 +332,6 @@
     <Content Include="Content\images\ui-icons_cd0a0a_256x240.png" />
     <Content Include="Content\images\ui-icons_ffffff_256x240.png" />
     <Content Include="Content\jquery-ui.css" />
-    <Content Include="Content\jquery-ui.min.css" />
     <Content Include="Content\jquery-ui.structure.css" />
     <Content Include="Content\jquery-ui.structure.min.css" />
     <Content Include="Content\jquery-ui.theme.css" />
@@ -907,10 +973,9 @@
     <Content Include="Images\UpDownState\Word Set\48\331.png" />
     <Content Include="Images\UpDownState\Word Set\48\332.png" />
     <Content Include="Images\UpDownState\Word Set\48\333.png" />
+    <Content Include="readme.txt" />
     <Content Include="Scripts\bootstrap-datepicker.js" />
-    <Content Include="Scripts\bootstrap-datepicker.min.js" />
     <Content Include="Scripts\bootstrap-toolkit.js" />
-    <Content Include="Scripts\bootstrap-toolkit.min.js" />
     <Content Include="Docs\SPP12-006.pdf" />
     <Content Include="Docs\Test.pdf" />
     <Content Include="fonts\fontawesome-webfont.eot" />
@@ -963,13 +1028,12 @@
     <Content Include="Content\FontAwesome\scss\_screen-reader.scss" />
     <Content Include="Content\FontAwesome\scss\_stacked.scss" />
     <Content Include="Content\FontAwesome\scss\_variables.scss" />
+    <Content Include="package.json" />
     <None Include="Properties\PublishProfiles\Deploy to GPAWeb.pubxml" />
     <None Include="Properties\PublishProfiles\Deploy to Package File.pubxml" />
     <Content Include="Scripts\bootstrap.js" />
-    <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\CycleDataSOEPointView.js" />
     <Content Include="Scripts\fileinput.js" />
-    <Content Include="Scripts\fileinput.min.js" />
     <Content Include="Scripts\flot\examples\ajax\index.html" />
     <Content Include="Scripts\flot\examples\annotating\index.html" />
     <Content Include="Scripts\flot\examples\axes-interacting\index.html" />
@@ -1050,7 +1114,6 @@
     <Content Include="Scripts\ie10-viewport-bug-workaround.js" />
     <Content Include="Scripts\jquery-2.2.1.min.map" />
     <Content Include="Scripts\jquery-2.2.1.js" />
-    <Content Include="Scripts\jquery-2.2.1.min.js" />
     <Content Include="Scripts\flot\API.md" />
     <Content Include="Scripts\flot\CONTRIBUTING.md" />
     <Content Include="Scripts\flot\examples\.DS_Store" />
@@ -1093,32 +1156,33 @@
     <Content Include="Scripts\jquery-2.2.3.js" />
     <Content Include="Scripts\jquery-2.2.3.min.js" />
     <Content Include="Scripts\jquery-ui.js" />
-    <Content Include="Scripts\jquery-ui.min.js" />
     <Content Include="Scripts\jquery.blockUI.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.js" />
-    <Content Include="Scripts\jquery.signalR-2.2.0.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
-    <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\js.cookie.js" />
+    <Content Include="Scripts\JSX\DateRangePicker.jsx" />
+    <Content Include="Scripts\JSX\Default.jsx" />
+    <Content Include="Scripts\JSX\Table.jsx" />
     <Content Include="Scripts\knockout-3.4.0.debug.js" />
     <Content Include="Scripts\knockout-3.4.0.js" />
     <Content Include="Scripts\knockout.mapping-latest.debug.js" />
     <Content Include="Scripts\knockout.mapping-latest.js" />
     <Content Include="Scripts\knockout.validation.js" />
-    <Content Include="Scripts\knockout.validation.min.js" />
     <Content Include="Scripts\ko-reactor.js" />
-    <Content Include="Scripts\ko-reactor.min.js" />
     <Content Include="Scripts\ko.observableDictionary.js" />
+    <Content Include="Scripts\lib\daterangepicker.js" />
+    <Content Include="Scripts\lib\moment.js" />
+    <Content Include="Scripts\lib\react\react-dom.js" />
+    <Content Include="Scripts\lib\react\react.js" />
+    <Content Include="Scripts\lib\react\remarkable.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
-    <Content Include="Scripts\mustache.min.js" />
+    <Content Include="Scripts\mustache.js" />
     <Content Include="Scripts\OpenSEE.js" />
     <Content Include="Scripts\pagedViewModel.js" />
     <Content Include="Scripts\plugins-all.js" />
     <Content Include="Scripts\primeui.js" />
-    <Content Include="Scripts\primeui.min.js" />
     <Content Include="Scripts\PrimeUI\images\loading.gif" />
     <Content Include="Scripts\PrimeUI\images\loadingbar.gif" />
     <Content Include="Scripts\PrimeUI\images\password-meter.png" />
@@ -1735,11 +1799,18 @@
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\JSX\MainPage.jsx" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">

@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System.Web.Optimization;
+using System.Web.Optimization.React;
 
 namespace SOETools
 {
@@ -30,21 +31,16 @@ namespace SOETools
         // For more information on bundling, visit http://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
-#if DEBUG
-            const string min = "";
-#else
-            const string min = ".min";
-#endif
 
             bundles.Add(new ScriptBundle("~/js.bundle/jquery").Include(
-                        $"~/Scripts/jquery-2.2.1{min}.js"));
+                        $"~/Scripts/jquery-2.2.1.js"));
 
             bundles.Add(new ScriptBundle("~/js.bundle/jqueryui").Include(
-                        $"~/Scripts/jquery-ui{min}.js"));
+                        $"~/Scripts/jquery-ui.js"));
 
             bundles.Add(new ScriptBundle("~/js.bundle/jqueryval").Include(
-                        $"~/Scripts/jquery.validate{min}.js",
-                        $"~/Scripts/jquery.validate.unobtrusive{min}.js"));
+                        $"~/Scripts/jquery.validate.js",
+                        $"~/Scripts/jquery.validate.unobtrusive.js"));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
@@ -52,22 +48,22 @@ namespace SOETools
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/js.bundle/bootstrap").Include(
-                        $"~/Scripts/bootstrap{min}.js",
+                        $"~/Scripts/bootstrap.js",
                         "~/Scripts/ie10-viewport-bug-workaround.js",
                         "~/Scripts/respond.js",
-                        $"~/Scripts/bootstrap-datepicker{min}.js",
-                        $"~/Scripts/bootstrap-toolkit{min}.js"));
+                        $"~/Scripts/bootstrap-datepicker.js",
+                        $"~/Scripts/bootstrap-toolkit.js"));
 
             bundles.Add(new ScriptBundle("~/js.bundle/fileinput").Include(
-                        $"~/Scripts/fileinput{min}.js"));
+                        $"~/Scripts/fileinput.js"));
 
             bundles.Add(new ScriptBundle("~/js.bundle/primeui").Include(
                         "~/Scripts/plugins-all.js",
-                        $"~/Scripts/mustache{min}.js",
+                        $"~/Scripts/mustache.js",
                         "~/Scripts/primeui.js"));
 
             bundles.Add(new ScriptBundle("~/js.bundle/signalR").Include(
-                        $"~/Scripts/jquery.signalR-2.2.0{min}.js"));
+                        $"~/Scripts/jquery.signalR-2.2.0.js"));
 
             bundles.Add(new ScriptBundle("~/js.bundle/gsfwebclient").Include(
                         "~/Scripts/gsf.web.client.js"));
@@ -82,27 +78,53 @@ namespace SOETools
             bundles.Add(new ScriptBundle("~/js.bundle/knockout").Include(
                         "~/Scripts/knockout-3.4.0.js",
                         "~/Scripts/knockout.mapping-latest.js",
-                        $"~/Scripts/knockout.validation{min}.js",
-                        $"~/Scripts/ko-reactor{min}.js",
+                        $"~/Scripts/knockout.validation.js",
+                        $"~/Scripts/ko-reactor.js",
                         "~/Scripts/ko.observableDictionary.js"));
 
             bundles.Add(new StyleBundle("~/css.bundle/bootstrap").Include(
-                        $"~/Content/bootstrap-datepicker3{min}.css",
+                        $"~/Content/bootstrap-datepicker3.css",
                         "~/Content/bootstrap-sidebar.css"));
 
             bundles.Add(new StyleBundle("~/css.bundle/fileinput").Include(
                         "~/Content/fileinput.css"));
 
             bundles.Add(new StyleBundle("~/css.bundle/jqueryui").Include(
-                        $"~/Content/jquery-ui{min}.css"));
+                        $"~/Content/jquery-ui.css"));
 
             bundles.Add(new StyleBundle("~/css.bundle/primeui").Include(
                         "~/Content/primeui-theme.css",
-                        $"~/Content/font-awesome{min}.css",
+                        $"~/Content/font-awesome.css",
                         $"~/Content/primeui.css"));
 
             bundles.Add(new StyleBundle("~/css.bundle/site").Include(
                         "~/Content/Site.css"));
+
+            // date range picker bundles
+            bundles.Add(new StyleBundle("~/css/daterangepicker").Include(
+                "~/Content/datarangepicker.css"));
+
+            bundles.Add(new ScriptBundle("~/js/daterangepicker").Include(
+                "~/Scripts/lib/moment.js",
+                "~/Scripts/lib/datarangepicker.js"));
+
+            // react bundles
+            bundles.Add(new ScriptBundle("~/js/react").Include(
+                "~/Scripts/lib/react/react.js",
+                "~/Scripts/lib/react/react-dom.js",
+                "~/Scripts/lib/react/remarkable.js"));
+
+            bundles.Add(new BabelBundle("~/jsx/components").Include(
+                "~/Scripts/JSX/DateRangePicker.jsx",
+                "~/Scripts/JSX/Table.jsx"));
+
+            // Code removed for clarity.
+#if Debug
+            BundleTable.EnableOptimizations = true;
+#endif
+
+
         }
+
     }
 }
