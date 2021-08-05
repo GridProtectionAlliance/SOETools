@@ -1,3 +1,5 @@
+![model](https://www.gridprotectionalliance.org/images/products/productTitles75/SOETools.png)
+
 # SOETools
 Sequence-of-Event (SOE) Tools are collection of specially built display screens for an extended version of openXDA that can be used by 
 distribution companies to study the operation of automated sectionalized switches.  Developed with funding from EPRI and EPB Chattanooga, 
